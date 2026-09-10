@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { ImageOff, Plus, Trash2 } from 'lucide-react'
 
+import ImageUploadButton from '@/components/admin/ImageUploadButton'
 import Input, { FieldError, FieldLabel } from '@/components/ui/Input'
 
 /**
@@ -77,15 +78,33 @@ export default function ImageListField({ values, errors, disabled, onChange }) {
 
       <FieldError id="images-error">{errors?.images}</FieldError>
 
-      <button
-        type="button"
-        onClick={() => onChange([...values, ''])}
-        disabled={disabled || values.length >= 20}
-        className="mt-4 inline-flex h-11 items-center gap-2 rounded-[3px] border border-line px-4 text-sm text-ink transition-colors duration-200 ease-out hover:border-ink disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <Plus size={16} aria-hidden="true" />
-        Adaugă imagine
-      </button>
+      <div className="mt-4 flex flex-wrap items-start gap-3">
+        <button
+          type="button"
+          onClick={() => onChange([...values, ''])}
+          disabled={disabled || values.length >= 20}
+          className="inline-flex h-11 items-center gap-2 rounded-[3px] border border-line px-4 text-sm text-ink transition-colors duration-200 ease-out hover:border-ink disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Plus size={16} aria-hidden="true" />
+          Adaugă rând
+        </button>
+
+        <ImageUploadButton
+          label="Încarcă poză"
+          disabled={disabled || values.length >= 20}
+          onUploaded={({ url }) => {
+            // Prima casetă goală primește poza; altfel se adaugă un rând nou.
+            const empty = values.findIndex((value) => value.trim() === '')
+            if (empty === -1) {
+              onChange([...values, url])
+              return
+            }
+            const next = [...values]
+            next[empty] = url
+            onChange(next)
+          }}
+        />
+      </div>
     </div>
   )
 }

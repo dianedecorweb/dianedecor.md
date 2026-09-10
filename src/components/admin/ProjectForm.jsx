@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import DatabaseNotice from '@/components/admin/DatabaseNotice'
 import ImageListField from '@/components/admin/ImageListField'
+import ImageUploadButton from '@/components/admin/ImageUploadButton'
 import Input, { FieldError, FieldLabel } from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
@@ -218,6 +219,16 @@ export default function ProjectForm({ project, categories, readOnly }) {
             placeholder="/images/portfolio/nume-proiect-cover.jpg"
           />
           <FieldError id="coverImage-error">{errors.coverImage}</FieldError>
+
+          <div className="mt-3">
+            <ImageUploadButton
+              label="Încarcă coperta"
+              disabled={disabled}
+              onUploaded={({ url }) =>
+                setValues((current) => ({ ...current, coverImage: url }))
+              }
+            />
+          </div>
         </div>
 
         <div className="md:col-span-2">

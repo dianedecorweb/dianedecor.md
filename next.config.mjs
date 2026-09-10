@@ -25,6 +25,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Fiecare magazin Blob primește propriul subdomeniu, de aici wildcard-ul.
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
     ],
   },
   async redirects() {

@@ -51,9 +51,13 @@ export const metadata = {
     'chirie decor Moldova',
   ],
   alternates: { canonical: '/' },
+  // icon.png și apple-icon.png din src/app sunt preluate automat de Next; aici
+  // rămân doar mărimile suplimentare pentru Android și pentru ecranul de start.
   icons: {
-    icon: '/logo.svg',
-    apple: '/logo.svg',
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
   },
   openGraph: {
     type: 'website',
