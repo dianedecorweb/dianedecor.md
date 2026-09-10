@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto'
+import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
 import { cookies } from 'next/headers'
 
 /**
@@ -43,20 +43,71 @@ function safeEqual(a, b) {
   return timingSafeEqual(bufferA, bufferB)
 }
 
+/**
+ * Costul scrypt. 16384 × 8 înseamnă 16 MB de memorie pe încercare, ceea ce ține
+ * un atac cu dicționar la câteva zeci de încercări pe secundă pe hardware
+ * obișnuit, dar rămâne sub 100 ms pentru un login real.
+ */
+const SCRYPT = { N: 16384, r: 8, p: 1, keyLength: 64 }
+
+/**
+ * `scrypt:N:r:p:sare:cheie`, totul în hex.
+ *
+ * Separatorul e `:`, nu `$` ca în formatul PHC: încărcătorul de `.env` al lui
+ * Next expandează `$N` ca referință la altă variabilă și ar goli hash-ul.
+ */
+export function hashPassword(password, salt = randomBytes(16)) {
+  const key = scryptSync(password, salt, SCRYPT.keyLength, {
+    N: SCRYPT.N,
+    r: SCRYPT.r,
+    p: SCRYPT.p,
+    maxmem: 256 * 1024 * 1024,
+  })
+
+  return ['scrypt', SCRYPT.N, SCRYPT.r, SCRYPT.p, salt.toString('hex'), key.toString('hex')].join(
+    ':'
+  )
+}
+
+/** Recalculează hash-ul cu sarea stocată și compară în timp constant. */
+function verifyPassword(password, stored) {
+  const parts = String(stored).split(':')
+  if (parts.length !== 6 || parts[0] !== 'scrypt') return false
+
+  const [, n, r, p, saltHex, keyHex] = parts
+  const salt = Buffer.from(saltHex, 'hex')
+  const expected = Buffer.from(keyHex, 'hex')
+
+  let actual
+  try {
+    actual = scryptSync(password, salt, expected.length, {
+      N: Number(n),
+      r: Number(r),
+      p: Number(p),
+      maxmem: 256 * 1024 * 1024,
+    })
+  } catch {
+    return false
+  }
+
+  return actual.length === expected.length && timingSafeEqual(actual, expected)
+}
+
 /** Checks the submitted credentials against the configured admin account. */
 export function verifyCredentials(email, password) {
   const expectedEmail = process.env.ADMIN_EMAIL
-  const expectedPassword = process.env.ADMIN_PASSWORD
+  const expectedHash = process.env.ADMIN_PASSWORD_HASH
 
-  if (!expectedEmail || !expectedPassword) {
-    throw new Error('ADMIN_EMAIL or ADMIN_PASSWORD is not configured.')
+  if (!expectedEmail || !expectedHash) {
+    throw new Error('ADMIN_EMAIL or ADMIN_PASSWORD_HASH is not configured.')
   }
 
   if (typeof email !== 'string' || typeof password !== 'string') return false
 
-  // Both comparisons always run, so a wrong email is not faster than a wrong password.
+  // Ambele verificări rulează întotdeauna, ca un email greșit să nu fie mai
+  // rapid decât o parolă greșită.
   const emailMatches = safeEqual(email.trim().toLowerCase(), expectedEmail.trim().toLowerCase())
-  const passwordMatches = safeEqual(password, expectedPassword)
+  const passwordMatches = verifyPassword(password, expectedHash)
 
   return emailMatches && passwordMatches
 }
