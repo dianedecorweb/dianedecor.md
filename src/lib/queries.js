@@ -66,8 +66,7 @@ export async function getProjectsByCategory(categorySlug) {
       prisma.project.findMany({
         where: {
           published: true,
-          category: { is: { published: true } },
-          ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+          category: { is: { published: true, ...(categorySlug ? { slug: categorySlug } : {}) } },
         },
         orderBy: { order: 'asc' },
         select: projectCardSelect,
@@ -93,7 +92,7 @@ export async function getRelatedProjects(categorySlug, excludeSlug, limit = 3) {
       prisma.project.findMany({
         where: {
           published: true,
-          category: { slug: categorySlug, is: { published: true } },
+          category: { is: { slug: categorySlug, published: true } },
           ...(excludeSlug ? { NOT: { slug: excludeSlug } } : {}),
         },
         orderBy: { order: 'asc' },
@@ -164,7 +163,7 @@ export async function getProjectNeighbours(categorySlug, currentSlug) {
     'getProjectNeighbours',
     () =>
       prisma.project.findMany({
-        where: { published: true, category: { slug: categorySlug, is: { published: true } } },
+        where: { published: true, category: { is: { slug: categorySlug, published: true } } },
         orderBy: { order: 'asc' },
         select: { slug: true, title: true },
       }),
