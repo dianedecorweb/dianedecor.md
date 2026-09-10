@@ -69,11 +69,23 @@ export default function AboutPage() {
               />
             </div>
 
-            <dl className="grid grid-cols-3 gap-6 border-t border-line pt-8">
+            {/*
+              Trei coloane înghesuiau etichete de două cuvinte în coloana îngustă
+              din dreapta și le rupeau pe câte trei rânduri. Pe rânduri, cifra
+              stă la stânga și eticheta la dreapta, aliniate pe aceeași linie.
+            */}
+            <dl className="divide-y divide-line border-y border-line">
               {studioStats.map((stat) => (
-                <div key={stat.label} className="flex flex-col-reverse gap-1">
-                  <dt className="text-xs tracking-[0.14em] text-muted uppercase">{stat.label}</dt>
-                  <dd className="font-display text-3xl text-ink">{stat.value}</dd>
+                <div
+                  key={stat.label}
+                  className="flex items-baseline justify-between gap-4 py-4"
+                >
+                  <dd className="font-display text-3xl leading-none text-ink md:text-4xl">
+                    {stat.value}
+                  </dd>
+                  <dt className="text-right text-xs tracking-[0.14em] text-muted uppercase">
+                    {stat.label}
+                  </dt>
                 </div>
               ))}
             </dl>

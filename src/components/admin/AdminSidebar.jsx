@@ -19,6 +19,9 @@ const sections = [
  * and because `aria-current` needs the pathname, which Next does not expose on
  * the server.
  */
+/** Leagă butonul de panoul pe care îl deschide, pentru cititoarele de ecran. */
+const PANEL_ID = 'admin-nav-panel'
+
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
@@ -102,6 +105,7 @@ export default function AdminSidebar() {
           type="button"
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
+          aria-controls={PANEL_ID}
           aria-label="Deschide meniul de administrare"
           className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ink"
         >
@@ -116,7 +120,13 @@ export default function AdminSidebar() {
 
       {/* Panoul mobil */}
       {isOpen ? (
-        <div role="dialog" aria-modal="true" aria-label="Meniu de administrare" className="fixed inset-0 z-50 lg:hidden">
+        <div
+          id={PANEL_ID}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Meniu de administrare"
+          className="fixed inset-0 z-50 lg:hidden"
+        >
           <button
             type="button"
             aria-label="Închide meniul"
