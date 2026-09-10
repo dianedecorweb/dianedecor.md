@@ -12,6 +12,8 @@ export const siteConfig = {
   phone: '069 216 064',
   phoneHref: 'tel:+37369216064',
   whatsappHref: 'https://wa.me/37369216064',
+  email: 'diane.decor.web@gmail.com',
+  emailHref: 'mailto:diane.decor.web@gmail.com',
   city: 'Chișinău',
   serviceArea: 'Chișinău și toată Republica Moldova',
   workingHours: 'Luni – Sâmbătă, 09:00 – 19:00',

@@ -1,4 +1,4 @@
-import { Clock, MapPin, MessageCircle, Phone } from 'lucide-react'
+import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react'
 
 import { FacebookIcon, InstagramIcon } from '@/components/brand/SocialIcons'
 import { siteConfig } from '@/lib/site-config'
@@ -38,6 +38,15 @@ export default function ContactDetails() {
             className="inline-flex min-h-11 items-center hover:text-accent-deep"
           >
             Scrie-ne pe WhatsApp
+          </a>
+        </DetailRow>
+
+        <DetailRow icon={Mail} label="Email">
+          <a
+            href={siteConfig.emailHref}
+            className="inline-flex min-h-11 items-center hover:text-accent-deep"
+          >
+            {siteConfig.email}
           </a>
         </DetailRow>
 

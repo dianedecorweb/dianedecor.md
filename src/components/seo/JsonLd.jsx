@@ -21,6 +21,7 @@ export function localBusinessSchema() {
     description: siteConfig.description,
     url: siteUrl,
     telephone: siteConfig.phoneHref.replace('tel:', ''),
+    email: siteConfig.email,
     image: `${siteUrl}/images/og-image.jpg`,
     priceRange: 'MDL',
     areaServed: {

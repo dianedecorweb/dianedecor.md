@@ -89,6 +89,15 @@ export default async function Footer() {
                 {siteConfig.phone}
               </a>
             </li>
+            <li>
+              <a
+                href={siteConfig.emailHref}
+                className="inline-flex min-h-11 items-center gap-3 py-1 text-ivory/80 transition-colors duration-200 ease-out hover:text-ivory"
+              >
+                <Mail size={16} aria-hidden="true" className="shrink-0" />
+                {siteConfig.email}
+              </a>
+            </li>
             <li className="flex items-start gap-3 text-ivory/80">
               <MapPin size={16} aria-hidden="true" className="mt-1 shrink-0" />
               <span>{siteConfig.serviceArea}</span>
