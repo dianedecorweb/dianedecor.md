@@ -58,6 +58,45 @@ async function notifyByEmail(message) {
   }
 }
 
+/** Telegram citește `& < >` ca marcaj, deci textul vizitatorului se escapează. */
+function escapeHtml(value) {
+  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+async function notifyByTelegram(message) {
+  const token = process.env.TELEGRAM_BOT_TOKEN
+  const chatId = process.env.TELEGRAM_CHAT_ID
+  if (!token || !chatId) return
+
+  const lines = [
+    `<b>Cerere nouă — ${escapeHtml(message.eventType)}</b>`,
+    '',
+    `<b>Nume:</b> ${escapeHtml(message.name)}`,
+    `<b>Telefon:</b> ${escapeHtml(message.phone)}`,
+    message.email ? `<b>Email:</b> ${escapeHtml(message.email)}` : null,
+    message.eventDate ? `<b>Data:</b> ${message.eventDate.toISOString().slice(0, 10)}` : null,
+    message.location ? `<b>Locație:</b> ${escapeHtml(message.location)}` : null,
+    message.guestCount ? `<b>Invitați:</b> ${message.guestCount}` : null,
+    '',
+    escapeHtml(message.message),
+  ].filter(Boolean)
+
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: lines.join('\n'),
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+    }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Telegram responded with ${response.status}`)
+  }
+}
+
 export async function POST(request) {
   let payload
 
@@ -137,13 +176,21 @@ export async function POST(request) {
     }
   }
 
-  // The visitor does not have to wait on Resend. `after` runs this once the
-  // response has been sent; a failed notification must never fail the request.
+  // The visitor does not have to wait on the notifications. `after` runs once
+  // the response has been sent, and one dead channel must not take out the
+  // other — nor fail the request.
   after(async () => {
-    try {
-      await notifyByEmail(data)
-    } catch (error) {
-      console.error('[api/contact] notification email failed:', error.message)
+    const channels = [
+      ['notification email', notifyByEmail],
+      ['Telegram notification', notifyByTelegram],
+    ]
+
+    for (const [label, send] of channels) {
+      try {
+        await send(data)
+      } catch (error) {
+        console.error(`[api/contact] ${label} failed:`, error.message)
+      }
     }
   })
 
