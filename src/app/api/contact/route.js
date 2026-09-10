@@ -22,42 +22,6 @@ function isRapidSubmit({ renderedAt }) {
   return Number.isFinite(rendered) && Date.now() - rendered < MIN_FILL_TIME_MS
 }
 
-async function notifyByEmail(message) {
-  const apiKey = process.env.RESEND_API_KEY
-  const recipient = process.env.CONTACT_NOTIFY_EMAIL
-  if (!apiKey || !recipient) return
-
-  const lines = [
-    `Nume: ${message.name}`,
-    `Telefon: ${message.phone}`,
-    message.email ? `Email: ${message.email}` : null,
-    `Tip eveniment: ${message.eventType}`,
-    message.eventDate ? `Data: ${message.eventDate.toISOString().slice(0, 10)}` : null,
-    message.location ? `Locație: ${message.location}` : null,
-    message.guestCount ? `Invitați: ${message.guestCount}` : null,
-    '',
-    message.message,
-  ].filter(Boolean)
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'DianeDecor <onboarding@resend.dev>',
-      to: [recipient],
-      subject: `Cerere nouă — ${message.eventType} — ${message.name}`,
-      text: lines.join('\n'),
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Resend responded with ${response.status}`)
-  }
-}
-
 /** Telegram citește `& < >` ca marcaj, deci textul vizitatorului se escapează. */
 function escapeHtml(value) {
   return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -178,21 +142,14 @@ export async function POST(request) {
     }
   }
 
-  // The visitor does not have to wait on the notifications. `after` runs once
-  // the response has been sent, and one dead channel must not take out the
-  // other — nor fail the request.
+  // Vizitatorul nu așteaptă notificarea. `after` rulează după ce răspunsul a
+  // plecat, iar o notificare picată nu trebuie să pice și cererea: mesajul e
+  // deja salvat și apare în panou chiar dacă Telegram nu răspunde.
   after(async () => {
-    const channels = [
-      ['notification email', notifyByEmail],
-      ['Telegram notification', notifyByTelegram],
-    ]
-
-    for (const [label, send] of channels) {
-      try {
-        await send(data)
-      } catch (error) {
-        console.error(`[api/contact] ${label} failed:`, error.message)
-      }
+    try {
+      await notifyByTelegram(data)
+    } catch (error) {
+      console.error('[api/contact] Telegram notification failed:', error.message)
     }
   })
 

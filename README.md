@@ -33,10 +33,11 @@ npx prisma generate
 | `DATABASE_URL` | da | Connection string MongoDB Atlas |
 | `NEXT_PUBLIC_SITE_URL` | da | URL-ul public, folosit în metadata, sitemap și JSON-LD |
 | `ADMIN_EMAIL` | da | Emailul contului de administrare |
-| `ADMIN_PASSWORD` | da | Parola contului de administrare |
+| `ADMIN_PASSWORD_HASH` | da | Hash scrypt al parolei, generat cu `node scripts/hash-password.js 'parola'` |
 | `ADMIN_SESSION_SECRET` | da | Șir aleatoriu, minimum 16 caractere, folosit la semnarea JWT-ului de sesiune |
-| `RESEND_API_KEY` | nu | Dacă lipsește, notificarea pe email e sărită în tăcere |
-| `CONTACT_NOTIFY_EMAIL` | nu | Adresa care primește cererile noi |
+| `BLOB_READ_WRITE_TOKEN` | nu | Pus automat de Vercel Blob. Fără el, încărcarea de poze din admin întoarce 503 |
+| `TELEGRAM_BOT_TOKEN` | nu | Botul care anunță cererile noi. Fără el, notificarea e sărită în tăcere |
+| `TELEGRAM_CHAT_ID` | nu | Grupul în care ajung notificările |
 
 `.env.local` este în `.gitignore`. Doar `.env.example` se commit-uiește.
 
