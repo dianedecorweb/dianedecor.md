@@ -69,16 +69,18 @@ async function notifyByTelegram(message) {
   if (!token || !chatId) return
 
   const lines = [
-    `<b>Cerere nouă — ${escapeHtml(message.eventType)}</b>`,
+    `💐 <b>Cerere nouă — ${escapeHtml(message.eventType)}</b>`,
     '',
-    `<b>Nume:</b> ${escapeHtml(message.name)}`,
-    `<b>Telefon:</b> ${escapeHtml(message.phone)}`,
-    message.email ? `<b>Email:</b> ${escapeHtml(message.email)}` : null,
-    message.eventDate ? `<b>Data:</b> ${message.eventDate.toISOString().slice(0, 10)}` : null,
-    message.location ? `<b>Locație:</b> ${escapeHtml(message.location)}` : null,
-    message.guestCount ? `<b>Invitați:</b> ${message.guestCount}` : null,
+    `👤 <b>Nume:</b> ${escapeHtml(message.name)}`,
+    `📞 <b>Telefon:</b> ${escapeHtml(message.phone)}`,
+    message.email ? `✉️ <b>Email:</b> ${escapeHtml(message.email)}` : null,
+    message.eventDate ? `📅 <b>Data:</b> ${message.eventDate.toISOString().slice(0, 10)}` : null,
+    message.location ? `📍 <b>Locație:</b> ${escapeHtml(message.location)}` : null,
+    message.guestCount ? `👥 <b>Invitați:</b> ${message.guestCount}` : null,
     '',
-    escapeHtml(message.message),
+    `💬 ${escapeHtml(message.message)}`,
+    '',
+    '✨ <i>Sună clientul cât e cald.</i>',
   ].filter(Boolean)
 
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
