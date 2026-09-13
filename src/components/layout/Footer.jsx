@@ -18,7 +18,7 @@ export default async function Footer() {
     <footer className="bg-ink text-ivory">
       <Container className="grid gap-x-8 gap-y-8 border-t border-ivory/15 py-12 md:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-4">
-          <Logo variant="light" className="text-2xl" />
+          <Logo variant="light" className="h-12 sm:h-14" />
           <p className="max-w-[34ch] text-sm leading-[1.7] text-ivory/70">
             Studio de decor pentru evenimente. Nunți, cumetrii, aniversări și ceremonii în aer liber,
             în {siteConfig.serviceArea}.

@@ -189,6 +189,18 @@ body:has(#hero) .site-header {
   color: var(--color-ivory);
 }
 
+/* Logo-ul e desen liniar negru pe transparent. Peste fotografia întunecată a
+   hero-ului nu s-ar vedea deloc, așa că îl inversăm în alb — aceeași comutare
+   pe care o face și restul antetului, din aceeași regulă, ca să nu poată
+   rămâne desincronizate. */
+body:has(#hero) .site-header .site-logo {
+  filter: brightness(0) invert(1);
+}
+
+html[data-scrolled='true'] body:has(#hero) .site-header .site-logo {
+  filter: none;
+}
+
 /* Over the hero everything in the header is ivory, hover included: the accent
    brown is unreadable on a dark photograph. */
 body:has(#hero) .site-header a:hover {

@@ -11,12 +11,13 @@
     "seed": "node prisma/seed.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "qa": "node scripts/qa/suite.mjs && node scripts/qa/devices.mjs && node scripts/qa/flows.mjs",
+    "qa": "node scripts/qa/suite.mjs && node scripts/qa/devices.mjs && node scripts/qa/flows.mjs && node scripts/qa/brand.mjs",
     "qa:api": "node scripts/qa/suite.mjs",
     "qa:devices": "node scripts/qa/devices.mjs",
     "qa:flows": "node scripts/qa/flows.mjs",
     "postinstall": "prisma generate",
-    "qa:telegram": "node scripts/qa/telegram-flow.mjs"
+    "qa:telegram": "node scripts/qa/telegram-flow.mjs",
+    "qa:brand": "node scripts/qa/brand.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

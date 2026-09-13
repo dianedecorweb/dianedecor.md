@@ -10,20 +10,27 @@ const RATIO = 356 / 173.5
  * The single source of truth for the brand mark. Nothing else in the codebase
  * renders the studio name in a visual header position.
  *
- * Logo-ul e desen liniar negru pe transparent. Peste fundal închis nu s-ar
- * vedea, așa că varianta `light` îl inversează în alb prin filtru — asta
- * păstrează un singur fișier în loc de două exportate diferit. `inherit` e
- * pentru header, care stă pe ivoriu și nu are nevoie de inversare.
+ * Logo-ul e desen liniar negru pe transparent, deci pe fundal închis ar fi
+ * invizibil. `light` folosește un al doilea fișier, cu desenul ivoriu și
+ * floarea păstrată roz — un filtru de inversare ar fi albit și petalele.
+ *
+ * `inherit` nu pune niciun filtru: peste hero comutarea o face CSS-ul din
+ * `globals.css`, prin clasa `site-logo`, odată cu restul antetului. Acolo
+ * rămâne inversarea în alb: e o stare trecătoare, peste o fotografie, unde
+ * albul se citește mai bine decât orice culoare.
+ *
+ * Înălțimea implicită e generoasă pentru că lockup-ul are „DECOR" cu litere
+ * rărite: sub 40px devin nelizibile.
  */
 export default function Logo({ variant = 'dark', className }) {
   return (
     <Image
-      src="/logo.svg"
+      src={variant === 'light' ? '/logo-light.svg' : '/logo.svg'}
       alt={siteConfig.name}
-      width={Math.round(40 * RATIO)}
-      height={40}
+      width={Math.round(56 * RATIO)}
+      height={56}
       priority
-      className={cn('h-9 w-auto sm:h-10', variant === 'light' && 'brightness-0 invert', className)}
+      className={cn('site-logo h-10 w-auto sm:h-12', className)}
     />
   )
 }

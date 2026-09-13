@@ -10,15 +10,31 @@ export default function Hero() {
       aria-labelledby="hero-title"
       className="relative -mt-20 flex min-h-svh items-center overflow-hidden bg-ink pt-20"
     >
-      <Image
-        src="/images/hero.jpg"
-        alt=""
-        fill
-        sizes="100vw"
-        quality={85}
-        priority
-        className="object-cover"
-      />
+      {/*
+        Două cadre ale aceleiași fotografii, nu unul singur întins.
+        Un ecran de telefon e aproape de două ori mai înalt decât lat; o
+        panoramă tăiată acolo lasă o fâșie îngustă din mijloc, în care nu se mai
+        înțelege ce se vede. Sub 1024px se încarcă un cadru vertical, croit din
+        sursă — pragul nu e la 768 pentru că o tabletă ținută vertical pierde
+        mai bine de jumătate din panoramă. `<picture>` alege unul singur, deci nu se descarcă amândouă.
+      */}
+      <picture>
+        <source
+          media="(min-width: 1024px)"
+          srcSet="/images/hero.jpg"
+          width={2400}
+          height={1350}
+        />
+        <img
+          src="/images/hero-portret.jpg"
+          alt=""
+          width={1200}
+          height={2000}
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </picture>
       <div aria-hidden="true" className="absolute inset-0 bg-black/40" />
 
       <Container className="relative py-16 md:py-20">

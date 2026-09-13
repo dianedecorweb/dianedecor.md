@@ -22,7 +22,7 @@ export default function Header() {
           className="inline-flex min-h-11 shrink-0 items-center"
           aria-label={`${siteConfig.name} — pagina principală`}
         >
-          <Logo variant="inherit" className="text-2xl" />
+          <Logo variant="inherit" />
         </Link>
 
         <nav aria-label="Navigare principală" className="site-nav hidden lg:block">
