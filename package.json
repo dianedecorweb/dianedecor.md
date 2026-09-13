@@ -15,7 +15,8 @@
     "qa:api": "node scripts/qa/suite.mjs",
     "qa:devices": "node scripts/qa/devices.mjs",
     "qa:flows": "node scripts/qa/flows.mjs",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "qa:telegram": "node scripts/qa/telegram-flow.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

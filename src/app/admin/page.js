@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Inbox } from 'lucide-react'
 
+import LiveRefresh from '@/components/admin/LiveRefresh'
 import MessageRow from '@/components/admin/MessageRow'
 import Container from '@/components/layout/Container'
 import EmptyState from '@/components/ui/EmptyState'
@@ -76,6 +77,8 @@ export default async function AdminPage({ searchParams }) {
           de date.
         </div>
       ) : null}
+
+      <LiveRefresh />
 
       <nav aria-label="Filtrează mesajele" className="mt-8 border-y border-line py-4">
         <ul className="flex flex-wrap gap-2">
