@@ -14,7 +14,8 @@
     "qa": "node scripts/qa/suite.mjs && node scripts/qa/devices.mjs && node scripts/qa/flows.mjs",
     "qa:api": "node scripts/qa/suite.mjs",
     "qa:devices": "node scripts/qa/devices.mjs",
-    "qa:flows": "node scripts/qa/flows.mjs"
+    "qa:flows": "node scripts/qa/flows.mjs",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
