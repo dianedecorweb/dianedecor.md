@@ -4,6 +4,7 @@ import { isAuthenticated } from '@/lib/auth'
 import { isFallbackMessageId, updateFallbackMessageStatus } from '@/lib/message-store'
 import { isDatabaseConfigured, prisma } from '@/lib/prisma'
 import { isMessageStatus } from '@/lib/message-status'
+import { syncStatus } from '@/lib/telegram'
 import { isValidObjectId } from '@/lib/utils'
 
 export async function PATCH(request, { params }) {
@@ -43,7 +44,16 @@ export async function PATCH(request, { params }) {
       return NextResponse.json({ ok: false, message: 'Baza de date nu este configurată.' }, { status: 503 })
     }
 
-    await prisma.contactMessage.update({ where: { id }, data: { status } })
+    const message = await prisma.contactMessage.update({ where: { id }, data: { status } })
+
+    // Aceeași stare și în grup: cine se uită pe Telegram vede ce s-a apăsat în
+    // panou. O eroare aici nu trebuie să pice actualizarea, care a reușit deja.
+    try {
+      await syncStatus(message.telegramMessageId, message, status)
+    } catch (error) {
+      console.error('[api/admin/messages] sincronizarea cu Telegram a eșuat:', error.message)
+    }
+
     return NextResponse.json({ ok: true, status })
   } catch (error) {
     console.error('[api/admin/messages]', error.message)

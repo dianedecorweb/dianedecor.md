@@ -94,5 +94,9 @@ model ContactMessage {
   status     MessageStatus @default(NEW)
   createdAt  DateTime      @default(now())
 
+  // Mesajul din Telegram care anunță cererea. Îl păstrăm ca să putem edita
+  // butoanele de acolo când starea se schimbă din panou, nu doar invers.
+  telegramMessageId Int?
+
   @@index([status, createdAt])
 }

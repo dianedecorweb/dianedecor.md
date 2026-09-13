@@ -1,11 +1,12 @@
 import { NextResponse, after } from 'next/server'
 
 import { isDatabaseConfigured, prisma } from '@/lib/prisma'
-import { saveFallbackMessage } from '@/lib/message-store'
+import { isFallbackMessageId, saveFallbackMessage } from '@/lib/message-store'
 import { checkRateLimit, getClientIp, recordRateLimitHit } from '@/lib/rate-limit'
 import { sanitizeText } from '@/lib/utils'
 import { formMessages } from '@/lib/site-config'
 import { contactSchema, toFieldErrors } from '@/lib/validation'
+import { sendNotification } from '@/lib/telegram'
 
 const RATE_LIMIT = { limit: 3, windowMs: 10 * 60 * 1000 }
 const MIN_FILL_TIME_MS = 3000
@@ -20,47 +21,6 @@ function isHoneypotTriggered({ website }) {
 function isRapidSubmit({ renderedAt }) {
   const rendered = Number(renderedAt)
   return Number.isFinite(rendered) && Date.now() - rendered < MIN_FILL_TIME_MS
-}
-
-/** Telegram citește `& < >` ca marcaj, deci textul vizitatorului se escapează. */
-function escapeHtml(value) {
-  return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-async function notifyByTelegram(message) {
-  const token = process.env.TELEGRAM_BOT_TOKEN
-  const chatId = process.env.TELEGRAM_CHAT_ID
-  if (!token || !chatId) return
-
-  const lines = [
-    `💐 <b>Cerere nouă — ${escapeHtml(message.eventType)}</b>`,
-    '',
-    `👤 <b>Nume:</b> ${escapeHtml(message.name)}`,
-    `📞 <b>Telefon:</b> ${escapeHtml(message.phone)}`,
-    message.email ? `✉️ <b>Email:</b> ${escapeHtml(message.email)}` : null,
-    message.eventDate ? `📅 <b>Data:</b> ${message.eventDate.toISOString().slice(0, 10)}` : null,
-    message.location ? `📍 <b>Locație:</b> ${escapeHtml(message.location)}` : null,
-    message.guestCount ? `👥 <b>Invitați:</b> ${message.guestCount}` : null,
-    '',
-    `💬 ${escapeHtml(message.message)}`,
-    '',
-    '✨ <i>Sună clientul cât e cald.</i>',
-  ].filter(Boolean)
-
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: lines.join('\n'),
-      parse_mode: 'HTML',
-      disable_web_page_preview: true,
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`Telegram responded with ${response.status}`)
-  }
 }
 
 export async function POST(request) {
@@ -147,7 +107,16 @@ export async function POST(request) {
   // deja salvat și apare în panou chiar dacă Telegram nu răspunde.
   after(async () => {
     try {
-      await notifyByTelegram(data)
+      const telegramMessageId = await sendNotification(stored, stored.id)
+
+      // Id-ul mesajului din Telegram ne lasă să-i edităm butoanele mai târziu,
+      // când starea se schimbă din panou.
+      if (telegramMessageId && isDatabaseConfigured() && !isFallbackMessageId(stored.id)) {
+        await prisma.contactMessage.update({
+          where: { id: stored.id },
+          data: { telegramMessageId },
+        })
+      }
     } catch (error) {
       console.error('[api/contact] Telegram notification failed:', error.message)
     }
