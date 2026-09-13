@@ -8,7 +8,7 @@ export default function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="relative -mt-20 flex min-h-svh items-end overflow-hidden bg-ink pt-20 md:items-center"
+      className="relative -mt-20 flex min-h-svh items-center overflow-hidden bg-ink pt-20"
     >
       <Image
         src="/images/hero.jpg"
@@ -21,7 +21,7 @@ export default function Hero() {
       />
       <div aria-hidden="true" className="absolute inset-0 bg-black/40" />
 
-      <Container className="relative pt-16 pb-16 md:pt-20 md:pb-24">
+      <Container className="relative py-16 md:py-20">
         <div className="flex max-w-3xl flex-col gap-6">
           <p className="eyebrow text-ivory/70">Studio de decor · Republica Moldova</p>
 

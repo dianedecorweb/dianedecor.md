@@ -7,7 +7,7 @@ import { formatEventDate, toIsoDate } from '@/lib/format'
 
 const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 
-export default function ProjectCard({ project, priority = false, sizes = CARD_SIZES }) {
+export default function ProjectCard({ project, priority = false, eager = false, sizes = CARD_SIZES }) {
   const eventDate = formatEventDate(project.eventDate)
 
   return (
@@ -21,6 +21,7 @@ export default function ProjectCard({ project, priority = false, sizes = CARD_SI
             sizes={sizes}
             quality={85}
             priority={priority}
+            loading={priority || eager ? 'eager' : 'lazy'}
             className="object-cover"
           />
         </div>

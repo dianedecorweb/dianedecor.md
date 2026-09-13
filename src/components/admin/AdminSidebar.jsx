@@ -114,7 +114,12 @@ export default function AdminSidebar() {
       </div>
 
       {/* Coloana fixă, de la lg în sus */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-paper px-5 py-6 lg:flex">
+      {/*
+        Lipită de ecran, nu de pagină: cu o sută de evenimente în listă, bara
+        pleca la scroll și „Vezi site-ul" ajungea de negăsit fără să cobori
+        până la capăt. `h-dvh` ține și legătura de jos mereu vizibilă.
+      */}
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-paper px-5 py-6 lg:sticky lg:top-0 lg:flex lg:h-dvh lg:overflow-y-auto">
         {navigation}
       </aside>
 

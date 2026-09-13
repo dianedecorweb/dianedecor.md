@@ -1,17 +1,12 @@
 'use client'
 
 import { CalendarDays, ChevronDown, MapPin, Phone, Users } from 'lucide-react'
+
+import { STATUS_LABELS } from '@/lib/message-status'
 import { useState } from 'react'
 
 import { formatDateTime, formatEventDate } from '@/lib/format'
 import { cn, truncate } from '@/lib/utils'
-
-export const STATUS_LABELS = {
-  NEW: 'Nou',
-  READ: 'Citit',
-  CONTACTED: 'Contactat',
-  ARCHIVED: 'Arhivat',
-}
 
 const STATUS_TONES = {
   NEW: 'border-accent text-accent',

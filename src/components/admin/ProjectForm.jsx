@@ -8,7 +8,7 @@ import { useState } from 'react'
 import DatabaseNotice from '@/components/admin/DatabaseNotice'
 import ImageListField from '@/components/admin/ImageListField'
 import ImageUploadButton from '@/components/admin/ImageUploadButton'
-import Input, { FieldError, FieldLabel } from '@/components/ui/Input'
+import Input, { FieldError, FieldHint, FieldLabel } from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import { projectMessages } from '@/lib/project-schema'
@@ -189,7 +189,17 @@ export default function ProjectForm({ project, categories, readOnly }) {
           <FieldLabel htmlFor="order" optional>
             Ordine în listă
           </FieldLabel>
-          <Input {...field('order')} type="number" min="0" max="9999" className="mt-2" />
+          <Input
+            {...field('order')}
+            type="number"
+            min="0"
+            max="9999"
+            className="mt-2"
+            aria-describedby="order-hint"
+          />
+          <FieldHint id="order-hint">
+            Poziția în portofoliu. Numărul mai mic apare mai sus: 0 e primul proiect din listă.
+          </FieldHint>
           <FieldError id="order-error">{errors.order}</FieldError>
         </div>
 

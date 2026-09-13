@@ -84,6 +84,19 @@
     outline-offset: 3px;
   }
 
+  /* Pe telefon, unele browsere socotesc și o atingere drept navigare cu
+     tastatura și lasă conturul accent pe butonul apăsat — arată ca o ramă
+     cafenie rămasă agățată de hamburger sau de X. Îl scoatem doar de pe
+     butoane și linkuri, unde atingerea spune deja unde ai apăsat. Câmpurile de
+     formular îl păstrează: acolo conturul arată unde scrii, iar tastatura e
+     oricum deschisă. */
+  @media (hover: none) {
+    a:focus-visible,
+    button:focus-visible {
+      outline: none;
+    }
+  }
+
   ::selection {
     background-color: var(--color-accent);
     color: var(--color-ivory);
@@ -126,7 +139,11 @@
     .reveal {
       animation: reveal-rise linear both;
       animation-timeline: view();
-      animation-range: entry 0% entry 55%;
+      /* A fost `entry 0% entry 55%`: secțiunea rămânea pe jumătate transparentă
+         până intra mai mult de jumătate în ecran, iar la scroll rapid pe telefon
+         se citea ca și cum conținutul s-ar încărca abia după o secundă.
+         Terminată la 18%, e vizibilă din clipa în care apare. */
+      animation-range: entry 0% entry 18%;
     }
   }
 }

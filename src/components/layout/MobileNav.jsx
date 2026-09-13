@@ -34,11 +34,16 @@ export default function MobileNav() {
     body.style.overflow = 'hidden'
 
     const panel = panelRef.current
-    panel?.querySelector(FOCUSABLE)?.focus()
+    // Pe primul buton, focusul lăsa un contur vizibil după atingere pe telefon.
+    // Containerul e și varianta corectă pentru un dialog: cititorul de ecran
+    // anunță tot panoul, nu doar butonul de închidere.
+    panel?.focus({ preventScroll: true })
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         setIsOpen(false)
+        // Doar aici: cine a închis cu Esc navighează cu tastatura și are nevoie
+        // să vadă unde a ajuns focusul.
         triggerRef.current?.focus()
         return
       }
@@ -82,14 +87,15 @@ export default function MobileNav() {
       aria-label="Meniu"
       className="fixed inset-0 z-[60] lg:hidden"
     >
-      <div ref={panelRef} className="flex h-full w-full flex-col bg-ivory px-6 pt-5 pb-8">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="flex h-full w-full flex-col bg-ivory px-6 pt-5 pb-8 outline-none"
+      >
         <div className="flex justify-end">
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false)
-              triggerRef.current?.focus()
-            }}
+            onClick={() => setIsOpen(false)}
             aria-label="Închide meniul"
             className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ink"
           >

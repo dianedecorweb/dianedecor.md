@@ -16,8 +16,11 @@ async function read(label, query, fallbackValue) {
   try {
     return await query()
   } catch (error) {
+    // Mesajul spunea că servește conținutul din pachet, dar arunca eroarea mai
+    // departe — deci rezerva nu intra niciodată în funcțiune și o pană a bazei
+    // de date dobora tot site-ul, inclusiv build-ul.
     console.error(`[queries] ${label} failed, serving bundled content:`, error.message)
-    throw error
+    return fallbackValue()
   }
 }
 

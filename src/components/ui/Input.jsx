@@ -12,6 +12,15 @@ export function FieldLabel({ htmlFor, children, optional = false }) {
   )
 }
 
+/** Lămurire sub un câmp, pentru reguli care nu se ghicesc din etichetă. */
+export function FieldHint({ id, children }) {
+  return (
+    <p id={id} className="mt-2 text-sm text-muted">
+      {children}
+    </p>
+  )
+}
+
 export function FieldError({ id, children }) {
   if (!children) return null
 

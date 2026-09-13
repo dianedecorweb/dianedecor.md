@@ -2,10 +2,11 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Inbox } from 'lucide-react'
 
-import MessageRow, { STATUS_LABELS } from '@/components/admin/MessageRow'
+import MessageRow from '@/components/admin/MessageRow'
 import Container from '@/components/layout/Container'
 import EmptyState from '@/components/ui/EmptyState'
 import { getAdminSession } from '@/lib/auth'
+import { MESSAGE_STATUSES, STATUS_HINTS, STATUS_LABELS } from '@/lib/message-status'
 import { getMessages } from '@/lib/queries'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +17,7 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-const STATUS_FILTERS = ['NEW', 'READ', 'CONTACTED', 'ARCHIVED']
+const STATUS_FILTERS = MESSAGE_STATUSES
 
 export default async function AdminPage({ searchParams }) {
   // Re-checked here on purpose: the proxy redirect is not the only guard.
@@ -109,6 +110,14 @@ export default async function AdminPage({ searchParams }) {
             </li>
           ))}
         </ul>
+
+        {/* Ce înseamnă categoria pe care stai — numele singur nu spune, iar
+            „Citit" și „Contactat" se confundă ușor. */}
+        <p className="mt-3 text-sm text-muted">
+          {activeStatus
+            ? `${STATUS_LABELS[activeStatus]}: ${STATUS_HINTS[activeStatus]} — ${counts[activeStatus]} din ${counts.all}.`
+            : `Toate cererile primite, oricare ar fi starea lor — ${counts.all} în total.`}
+        </p>
       </nav>
 
       <div className="mt-8">
