@@ -10,6 +10,9 @@ import { MESSAGE_STATUSES, STATUS_LABELS } from '@/lib/message-status'
 
 const API = 'https://api.telegram.org'
 
+/** Cât așteptăm Telegram înainte să renunțăm. Formularul nu poate atârna. */
+const TIMEOUT_MS = 5000
+
 /** Telegram limitează `callback_data` la 64 de octeți, iar un ObjectId are 24. */
 export const CALLBACK_PREFIX = 'st'
 
@@ -36,6 +39,7 @@ async function call(method, payload) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   })
 
   const body = await response.json().catch(() => null)

@@ -1,4 +1,4 @@
-import { NextResponse, after } from 'next/server'
+import { NextResponse } from 'next/server'
 
 import { isDatabaseConfigured, prisma } from '@/lib/prisma'
 import { isFallbackMessageId, saveFallbackMessage } from '@/lib/message-store'
@@ -102,25 +102,28 @@ export async function POST(request) {
     }
   }
 
-  // Vizitatorul nu așteaptă notificarea. `after` rulează după ce răspunsul a
-  // plecat, iar o notificare picată nu trebuie să pice și cererea: mesajul e
-  // deja salvat și apare în panou chiar dacă Telegram nu răspunde.
-  after(async () => {
-    try {
-      const telegramMessageId = await sendNotification(stored, stored.id)
+  // Notificarea pleacă în fluxul cererii, nu după răspuns.
+  //
+  // A stat în `after()` ca vizitatorul să nu aștepte, dar pe Vercel funcția e
+  // înghețată imediat ce răspunsul a plecat: mesajul ajungea în grup, iar
+  // scrierea de după — cea care leagă cererea de mesajul din Telegram — nu mai
+  // apuca să se execute. Fără legătura aia, o schimbare de stare din panou nu
+  // poate actualiza butoanele din grup.
+  //
+  // Costul e o singură chemare, mărginită la 5 secunde. Dacă Telegram tace,
+  // cererea e deja salvată și apare în panou.
+  try {
+    const telegramMessageId = await sendNotification(stored, stored.id)
 
-      // Id-ul mesajului din Telegram ne lasă să-i edităm butoanele mai târziu,
-      // când starea se schimbă din panou.
-      if (telegramMessageId && isDatabaseConfigured() && !isFallbackMessageId(stored.id)) {
-        await prisma.contactMessage.update({
-          where: { id: stored.id },
-          data: { telegramMessageId },
-        })
-      }
-    } catch (error) {
-      console.error('[api/contact] Telegram notification failed:', error.message)
+    if (telegramMessageId && isDatabaseConfigured() && !isFallbackMessageId(stored.id)) {
+      await prisma.contactMessage.update({
+        where: { id: stored.id },
+        data: { telegramMessageId },
+      })
     }
-  })
+  } catch (error) {
+    console.error('[api/contact] Telegram notification failed:', error.message)
+  }
 
   return NextResponse.json({ ok: true, id: stored.id })
 }
