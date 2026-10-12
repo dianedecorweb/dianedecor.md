@@ -58,7 +58,7 @@ export async function POST(request) {
       select: { id: true, slug: true },
     })
 
-    revalidatePortfolio(project.slug)
+    revalidatePortfolio()
 
     return NextResponse.json({ ok: true, id: project.id, slug: project.slug })
   } catch (error) {

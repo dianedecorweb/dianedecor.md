@@ -172,7 +172,14 @@ report.check('are buton de încărcare pentru copertă', await page.evaluate(`
   [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Încarcă coperta'))
 `))
 report.check('are buton de încărcare în galerie', await page.evaluate(`
-  [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Încarcă poză'))
+  [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Încarcă poze'))
+`))
+report.check('galeria primește mai multe poze deodată', await page.evaluate(`
+  [...document.querySelectorAll('input[type=file]')].some((input) => input.multiple)
+`))
+report.check('pozele din galerie se pot muta și face copertă', await page.evaluate(`
+  !!document.querySelector('button[aria-label^="Mută imaginea"]') &&
+  [...document.querySelectorAll('button')].some((b) => b.textContent.includes('Fă copertă'))
 `))
 report.check('selectorul de fișiere acceptă doar imagini', await page.evaluate(`
   document.querySelector('input[type=file]')?.getAttribute('accept')?.startsWith('image/')

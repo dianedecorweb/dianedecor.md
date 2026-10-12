@@ -17,8 +17,17 @@ const STATUS_TONES = {
 
 export default function MessageRow({ message }) {
   const [status, setStatus] = useState(message.status)
+  const [serverStatus, setServerStatus] = useState(message.status)
   const [isExpanded, setIsExpanded] = useState(false)
   const [error, setError] = useState(null)
+
+  // `useState` citește starea doar la montare. Când LiveRefresh aduce o stare
+  // nouă de pe server (o apăsare în Telegram, de pildă), rândul rămânea pe cea
+  // veche; o preluăm aici, în timpul randării.
+  if (message.status !== serverStatus) {
+    setServerStatus(message.status)
+    setStatus(message.status)
+  }
 
   const changeStatus = async (nextStatus) => {
     const previousStatus = status

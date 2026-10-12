@@ -87,9 +87,8 @@ export async function PATCH(request, { params }) {
       select: { id: true, slug: true },
     })
 
-    revalidatePortfolio(project.slug)
-    // The old URL has to stop serving the project after a rename.
-    if (existing.slug !== project.slug) revalidatePortfolio(existing.slug)
+    // Covers the old URL after a rename too: it is one of the pattern's pages.
+    revalidatePortfolio()
 
     return NextResponse.json({ ok: true, id: project.id, slug: project.slug })
   } catch (error) {
@@ -100,13 +99,8 @@ export async function PATCH(request, { params }) {
 
 async function toggleFlag(id, data) {
   try {
-    const project = await prisma.project.update({
-      where: { id },
-      data,
-      select: { slug: true },
-    })
-
-    revalidatePortfolio(project.slug)
+    await prisma.project.update({ where: { id }, data, select: { id: true } })
+    revalidatePortfolio()
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error('[api/admin/projects] toggle failed:', error.message)
@@ -120,8 +114,8 @@ export async function DELETE(request, { params }) {
   if (blocked) return blocked
 
   try {
-    const project = await prisma.project.delete({ where: { id }, select: { slug: true } })
-    revalidatePortfolio(project.slug)
+    await prisma.project.delete({ where: { id }, select: { id: true } })
+    revalidatePortfolio()
 
     return NextResponse.json({ ok: true })
   } catch (error) {

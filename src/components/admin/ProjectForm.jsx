@@ -246,7 +246,17 @@ export default function ProjectForm({ project, categories, readOnly }) {
             values={values.images}
             errors={errors}
             disabled={disabled}
-            onChange={(images) => setValues((current) => ({ ...current, images }))}
+            coverImage={values.coverImage}
+            onSetCover={(url) => {
+              setValues((current) => ({ ...current, coverImage: url }))
+              if (errors.coverImage) setErrors((current) => ({ ...current, coverImage: null }))
+            }}
+            onChange={(next) =>
+              setValues((current) => ({
+                ...current,
+                images: typeof next === 'function' ? next(current.images) : next,
+              }))
+            }
           />
         </div>
 
