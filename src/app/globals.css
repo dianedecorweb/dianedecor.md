@@ -21,6 +21,14 @@
   /* Field border: 3.1:1 on --ivory, for WCAG 1.4.11 compliance. */
   --color-field-line: #B4A996;
 
+  /* Pastelate pentru butoanele de contact. Textul ink peste ele trece de 12:1. */
+  --color-pastel-sage: #e2ebdc;
+  --color-pastel-sage-deep: #d4e1cc;
+  --color-pastel-rose: #f6e1e8;
+  --color-pastel-rose-deep: #eed0da;
+  --color-pastel-lilac: #e9e3f3;
+  --color-pastel-lilac-deep: #ddd4ec;
+
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
@@ -282,5 +290,45 @@ html[data-scrolled='true'] body:has(#hero) .site-header .site-nav [data-nav='/']
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Fereastra de contact de la intrare. Pagina din spate nu se derulează cât e
+   deschisă, iar fundalul se întunecă doar cât să scoată fereastra în față. */
+.contact-popup::backdrop {
+  background-color: rgb(30 27 24 / 0.45);
+}
+
+html:has(.contact-popup[open]) {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact-popup[open] {
+    animation: popup-in 220ms ease-out;
+  }
+
+  .contact-popup[open]::backdrop {
+    animation: popup-backdrop-in 220ms ease-out;
+  }
+}
+
+@keyframes popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes popup-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

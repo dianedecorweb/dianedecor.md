@@ -1,4 +1,5 @@
 import ContactLauncher from '@/components/layout/ContactLauncher'
+import ContactPopup from '@/components/layout/ContactPopup'
 import Footer from '@/components/layout/Footer'
 import Header from '@/components/layout/Header'
 
@@ -25,6 +26,7 @@ export default function SiteLayout({ children }) {
       <Footer />
 
       <ContactLauncher />
+      <ContactPopup />
     </div>
   )
 }

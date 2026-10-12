@@ -1,50 +1,15 @@
 'use client'
 
-import Link from 'next/link'
-import { MessageCircle, Phone, Send, X } from 'lucide-react'
+import { MessageCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { InstagramIcon } from '@/components/brand/SocialIcons'
-import { siteConfig } from '@/lib/site-config'
+import ChannelLink from '@/components/contact/ChannelLink'
+import { contactChannels } from '@/components/contact/contactChannels'
 
 /**
- * Floating "Contactele noastre" button. Opens a short list of ways to reach the
- * studio, ordered by how likely a visitor is to use them: a call first, an
- * Instagram message second, the full quote form last.
- *
- * `ig.me/m/<user>` opens a direct message thread instead of the profile.
+ * Floating "Contactele noastre" button. Opens the same three channels as the
+ * entry popup, so a visitor who closed the popup can still find them.
  */
-const instagramHandle = siteConfig.socials.instagram.replace(/\/+$/, '').split('/').pop()
-
-const channels = [
-  {
-    key: 'phone',
-    href: siteConfig.phoneHref,
-    label: 'Sună-ne',
-    detail: siteConfig.phone,
-    icon: Phone,
-    tone: 'bg-[#e9f0e5] hover:bg-[#dde8d8]',
-  },
-  {
-    key: 'instagram',
-    href: `https://ig.me/m/${instagramHandle}`,
-    label: 'Scrie-ne în Instagram',
-    detail: `@${instagramHandle}`,
-    icon: InstagramIcon,
-    tone: 'bg-[#f6e7ec] hover:bg-[#f0dae2]',
-    external: true,
-  },
-  {
-    key: 'offer',
-    href: '/contact',
-    label: 'Cere o ofertă',
-    detail: 'Formular, răspundem în aceeași zi',
-    icon: Send,
-    tone: 'bg-[#f3ede4] hover:bg-[#ebe2d6]',
-    internal: true,
-  },
-]
-
 export default function ContactLauncher() {
   const [isOpen, setIsOpen] = useState(false)
   const rootRef = useRef(null)
@@ -89,35 +54,21 @@ export default function ContactLauncher() {
           </p>
 
           <ul className="flex flex-col gap-2">
-            {channels.map((channel) => {
+            {contactChannels.map((channel) => {
               const Icon = channel.icon
-              const className = `flex min-h-14 w-full items-center gap-3 rounded-md px-4 py-3 text-ink transition-colors duration-200 ease-out ${channel.tone}`
-              const content = (
-                <>
-                  <Icon size={20} className="shrink-0 text-ink-soft" aria-hidden="true" />
-                  <span className="flex min-w-0 flex-col">
-                    <span className="text-sm font-medium">{channel.label}</span>
-                    <span className="truncate text-xs text-ink-soft">{channel.detail}</span>
-                  </span>
-                </>
-              )
-
               return (
                 <li key={channel.key}>
-                  {channel.internal ? (
-                    <Link href={channel.href} onClick={close} className={className}>
-                      {content}
-                    </Link>
-                  ) : (
-                    <a
-                      href={channel.href}
-                      onClick={close}
-                      className={className}
-                      {...(channel.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    >
-                      {content}
-                    </a>
-                  )}
+                  <ChannelLink
+                    channel={channel}
+                    onClick={close}
+                    className={`flex min-h-14 w-full items-center gap-3 rounded-md px-4 py-3 text-ink transition-colors duration-200 ease-out ${channel.tone}`}
+                  >
+                    <Icon size={20} className="shrink-0 text-ink-soft" aria-hidden="true" />
+                    <span className="flex min-w-0 flex-col">
+                      <span className="text-sm font-medium">{channel.label}</span>
+                      <span className="truncate text-xs text-ink-soft">{channel.detail}</span>
+                    </span>
+                  </ChannelLink>
                 </li>
               )
             })}

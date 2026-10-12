@@ -73,6 +73,10 @@ export async function connect() {
 
   await send('Page.enable')
   await send('Runtime.enable')
+  // Declară fila drept automatizată (navigator.webdriver = true). Fereastra de
+  // contact de la intrare se ferește de browserele automate; fără asta s-ar
+  // deschide peste fiecare pagină testată și i-ar bloca clicurile.
+  await send('Emulation.setAutomationOverride', { enabled: true })
 
   const close = async () => {
     socket.close()

@@ -178,6 +178,40 @@ report.check('selectorul de fișiere acceptă doar imagini', await page.evaluate
   document.querySelector('input[type=file]')?.getAttribute('accept')?.startsWith('image/')
 `))
 
+// ──────────────────────────────────────────── fereastra de contact
+report.group('Fereastra de contact la intrare')
+
+// Filă nouă, deci sessionStorage curat, ca pentru un vizitator care abia
+// intră. Fereastra se ferește de browserele automate, așa că aici ne prefacem om.
+const visitor = await connect()
+await visitor.send('Page.addScriptToEvaluateOnNewDocument', {
+  source: "Object.defineProperty(navigator, 'webdriver', { get: () => false })",
+})
+const popupOpen = `!!document.querySelector('dialog.contact-popup[open]')`
+
+await visitor.device(390, 844, 3)
+await visitor.goto(`${BASE}/`, 2400)
+report.check('apare singură la intrare', await visitor.evaluate(popupOpen))
+
+const order = await visitor.evaluate(
+  `[...document.querySelectorAll('dialog.contact-popup a')].map((a) => a.getAttribute('href')).join(' ')`
+)
+report.check(
+  'ordinea: telefon, Instagram, ofertă',
+  order === 'tel:+37369216064 https://ig.me/m/dianedecor.md /contact',
+  order
+)
+
+await visitor.key('Escape', 'Escape', 27)
+report.check('Esc o închide', !(await visitor.evaluate(popupOpen)))
+
+await visitor.goto(`${BASE}/servicii`, 2400)
+report.check('nu reapare în aceeași vizită', !(await visitor.evaluate(popupOpen)))
+await visitor.close()
+
+await page.goto(`${BASE}/`, 2400)
+report.check('nu apare în browserele automate', !(await page.evaluate(popupOpen)))
+
 const failed = report.finish()
 await page.close()
 process.exit(failed === 0 ? 0 : 1)
