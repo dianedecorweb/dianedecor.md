@@ -1,6 +1,7 @@
 'use client'
 
 import { MessageCircle, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import ChannelLink from '@/components/contact/ChannelLink'
@@ -9,8 +10,12 @@ import { contactChannels } from '@/components/contact/contactChannels'
 /**
  * Floating "Contactele noastre" button. Opens the same three channels as the
  * entry popup, so a visitor who closed the popup can still find them.
+ *
+ * Not on /contact: the visitor is already at the form there, and on phones that
+ * page has its own fixed call / WhatsApp bar, which this button would sit on.
  */
 export default function ContactLauncher() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const rootRef = useRef(null)
   const toggleRef = useRef(null)
@@ -36,6 +41,8 @@ export default function ContactLauncher() {
   }, [isOpen])
 
   const close = () => setIsOpen(false)
+
+  if (pathname.startsWith('/contact')) return null
 
   return (
     <div

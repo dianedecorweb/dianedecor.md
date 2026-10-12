@@ -20,7 +20,7 @@ export default async function HomePage() {
   const [featuredProjects, services, testimonials] = await Promise.all([
     getFeaturedProjects(4),
     getServices(),
-    getFeaturedTestimonials(6),
+    getFeaturedTestimonials(),
   ])
 
   return (

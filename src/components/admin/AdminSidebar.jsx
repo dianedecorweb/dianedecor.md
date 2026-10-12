@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ExternalLink, Inbox, Images, Menu, X } from 'lucide-react'
+import { ExternalLink, Inbox, Images, Menu, MessageSquareQuote, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import Logo from '@/components/brand/Logo'
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 const sections = [
   { label: 'Mesaje', href: '/admin', icon: Inbox },
   { label: 'Portofoliu', href: '/admin/portofoliu', icon: Images },
+  { label: 'Recenzii', href: '/admin/recenzii', icon: MessageSquareQuote },
 ]
 
 /**

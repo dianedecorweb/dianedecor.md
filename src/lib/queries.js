@@ -247,13 +247,17 @@ export async function getServiceSlugs() {
   )
 }
 
-export async function getFeaturedTestimonials(limit = 6) {
+/**
+ * Reviews for the home page. Only `published` decides: the admin exposes a
+ * single "shown on the site" switch, so `featured` no longer filters anything.
+ */
+export async function getFeaturedTestimonials(limit = 12) {
   return read(
     'getFeaturedTestimonials',
     () =>
       prisma.testimonial.findMany({
-        where: { featured: true, published: true },
-        orderBy: { order: 'asc' },
+        where: { published: true },
+        orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
         take: limit,
         select: { id: true, authorName: true, eventType: true, content: true, rating: true },
       }),

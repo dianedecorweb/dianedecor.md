@@ -185,6 +185,21 @@ report.check('selectorul de fișiere acceptă doar imagini', await page.evaluate
   document.querySelector('input[type=file]')?.getAttribute('accept')?.startsWith('image/')
 `))
 
+// Doar probe care citesc: baza de date e aceeași cu a site-ului live, așa că
+// verificările permanente nu scriu nimic în ea.
+await page.goto(`${BASE}/admin/recenzii`, 2200)
+report.check('secțiunea Recenzii se deschide', (await text('h1')) === 'Recenzii')
+report.check('meniul lateral duce la Recenzii', await exists('a[href="/admin/recenzii"][aria-current="page"]'))
+report.check('fiecare recenzie are buton de ascundere', (await count('li button[aria-pressed]')) > 0)
+
+await page.goto(`${BASE}/admin/recenzii/nou`, 2200)
+await click('form button[type=submit]')
+await page.wait(900)
+report.check('formularul gol de recenzie arată erori', (await count('[id$="-error"]:not(:empty)')) >= 3)
+
+const missingReview = await page.evaluate(`fetch('/admin/recenzii/nu-exista').then((r) => r.status)`)
+report.check('o recenzie inexistentă dă 404', missingReview === 404, String(missingReview))
+
 // ──────────────────────────────────────────── fereastra de contact
 report.group('Fereastra de contact la intrare')
 

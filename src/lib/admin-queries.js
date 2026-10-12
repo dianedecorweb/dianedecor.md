@@ -100,3 +100,45 @@ export async function getTakenSlugs(exceptId) {
 
   return projects.map((project) => project.slug)
 }
+
+/** Every review, shown or hidden, in the order the site uses. */
+export async function getAdminTestimonials() {
+  if (!canEditContent()) {
+    return fallback.testimonials.map((testimonial, index) => ({
+      ...testimonial,
+      id: testimonial.id ?? `fallback-${index}`,
+      published: true,
+      order: index + 1,
+    }))
+  }
+
+  return prisma.testimonial.findMany({
+    orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+    select: {
+      id: true,
+      authorName: true,
+      eventType: true,
+      content: true,
+      published: true,
+      order: true,
+    },
+  })
+}
+
+export async function getAdminTestimonial(id) {
+  if (!canEditContent()) {
+    return (await getAdminTestimonials()).find((testimonial) => testimonial.id === id) ?? null
+  }
+
+  return prisma.testimonial.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      authorName: true,
+      eventType: true,
+      content: true,
+      published: true,
+      order: true,
+    },
+  })
+}
