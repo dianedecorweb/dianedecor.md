@@ -23,22 +23,44 @@ function isRapidSubmit({ renderedAt }) {
   return Number.isFinite(rendered) && Date.now() - rendered < MIN_FILL_TIME_MS
 }
 
+/**
+ * Cererile marcate de suita de verificări trec prin toată validarea, dar nu
+ * scriu în baza de date și nu trimit nimic în Telegram.
+ *
+ * Fără asta, fiecare rulare a suitei lăsa cereri false în panou și notificări
+ * reale în grupul studioului — baza locală e aceeași cu a site-ului live.
+ * Merge doar unde QA_DRY_RUN=1 e setat explicit, adică pe calculatorul de
+ * dezvoltare; pe Vercel variabila nu există, deci antetul e ignorat.
+ */
+function isQaDryRun(request) {
+  return process.env.QA_DRY_RUN === '1' && request.headers.get('x-qa-dry-run') === '1'
+}
+
 export async function POST(request) {
+  const dryRun = isQaDryRun(request)
+  // Fiecare răspuns confirmă modul de test, ca suita să se poată opri înainte
+  // de prima scriere reală dacă serverul nu l-a activat.
+  const respond = (body, init) => {
+    const response = NextResponse.json(body, init)
+    if (dryRun) response.headers.set('x-qa-dry-run', 'on')
+    return response
+  }
+
   let payload
 
   try {
     payload = await request.json()
   } catch {
-    return NextResponse.json({ ok: false, message: formMessages.error }, { status: 400 })
+    return respond({ ok: false, message: formMessages.error }, { status: 400 })
   }
 
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
-    return NextResponse.json({ ok: false, message: formMessages.error }, { status: 400 })
+    return respond({ ok: false, message: formMessages.error }, { status: 400 })
   }
 
   // Silent success for honeypot — a bot must not learn that it was detected.
   if (isHoneypotTriggered(payload)) {
-    return NextResponse.json({ ok: true })
+    return respond({ ok: true })
   }
 
   const rateLimitKey = `contact:${getClientIp(request)}`
@@ -49,7 +71,7 @@ export async function POST(request) {
   )
 
   if (!allowed) {
-    return NextResponse.json(
+    return respond(
       { ok: false, message: formMessages.rateLimited },
       { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
     )
@@ -58,7 +80,7 @@ export async function POST(request) {
   const result = contactSchema.safeParse(payload)
 
   if (!result.success) {
-    return NextResponse.json({ ok: false, errors: toFieldErrors(result.error) }, { status: 400 })
+    return respond({ ok: false, errors: toFieldErrors(result.error) }, { status: 400 })
   }
 
   recordRateLimitHit(rateLimitKey)
@@ -81,6 +103,8 @@ export async function POST(request) {
       : sanitizeText(result.data.message, 1000),
   }
 
+  if (dryRun) return respond({ ok: true, id: 'qa-dry-run' })
+
   let stored
 
   try {
@@ -98,7 +122,7 @@ export async function POST(request) {
       }
     } catch (fallbackError) {
       console.error('[api/contact] fallback store failed:', fallbackError.message)
-      return NextResponse.json({ ok: false, message: formMessages.error }, { status: 500 })
+      return respond({ ok: false, message: formMessages.error }, { status: 500 })
     }
   }
 
@@ -125,5 +149,5 @@ export async function POST(request) {
     console.error('[api/contact] Telegram notification failed:', error.message)
   }
 
-  return NextResponse.json({ ok: true, id: stored.id })
+  return respond({ ok: true, id: stored.id })
 }

@@ -7,8 +7,15 @@ import { eventTypeOptions } from '@/lib/site-config'
  * uses it for inline feedback; the server re-runs it and never trusts the client.
  */
 
-// Moldovan mobile and landline numbers, with or without +373, spaces or dashes.
-const PHONE_PATTERN = /^(\+?373|0)[\s-]?\d{2}[\s-]?\d{3}[\s-]?\d{3}$/
+/**
+ * Moldovan numbers (069…, +373…, 373…) and any international one (+39…,
+ * 0039…), once spaces, dashes, dots and brackets are gone. The first version
+ * took Moldovan numbers only, so a couple living in Italy or Romania — a good
+ * share of the weddings here — could not send the form at all, nor could anyone
+ * who typed "+373 (69) 216-064".
+ */
+const PHONE_PATTERN = /^(0\d{8}|\+?373\d{8}|\+\d{8,15}|00\d{8,15})$/
+const normalizePhone = (value) => value.replace(/[\s\-.()]/g, '')
 
 /** Treats an untouched input ('' or null) as "not provided". */
 function optional(schema) {
@@ -35,7 +42,10 @@ export const contactSchema = z
     phone: z
       .string({ error: 'Scrie un număr de telefon.' })
       .trim()
-      .regex(PHONE_PATTERN, 'Introdu un număr valid, de exemplu 069 216 064 sau +373 69 216 064.'),
+      .refine(
+        (value) => PHONE_PATTERN.test(normalizePhone(value)),
+        'Introdu un număr valid, de exemplu 069 216 064, sau unul din străinătate cu prefixul țării, ca +39 333 123 4567.'
+      ),
 
     email: optional(z.string().trim().pipe(z.email('Introdu o adresă de email validă.'))),
 

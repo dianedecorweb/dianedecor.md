@@ -32,7 +32,9 @@ export async function generateMetadata({ params }) {
   if (!category) return { title: 'Categorie indisponibilă' }
 
   return {
-    title: category.name,
+    // Prefixul ține titlul unic: unele categorii poartă același nume ca un
+    // serviciu („Cerere în căsătorie"), iar Google vedea două pagini identice.
+    title: `Portofoliu: ${category.name}`,
     description: truncate(category.description, 160),
     alternates: { canonical: `/portofoliu/categorie/${category.slug}` },
   }

@@ -11,6 +11,11 @@
 import fs from 'node:fs'
 
 const BASE = process.env.BASE ?? 'http://localhost:3000'
+
+// Testele care scriu mesaje vizibile în grupul de Telegram al studioului rulează
+// doar la cerere: `QA_SEND_TELEGRAM=1 npm run qa:api`. Altfel fiecare rulare
+// lăsa în grup câte opt mesaje de test.
+const SEND_TELEGRAM = process.env.QA_SEND_TELEGRAM === '1'
 const ENV_PATH = new URL('../../.env.local', import.meta.url)
 
 const env = {}
@@ -58,15 +63,32 @@ async function postContact(payload, headers = {}) {
       // IP propriu pentru fiecare cerere: altfel testele de mai devreme
       // consumă limita și cele de după par picate fără motiv.
       'x-forwarded-for': freshIp(),
+      // Validare completă, fără scriere în baza reală și fără Telegram.
+      // Serverul îl respectă doar cu QA_DRY_RUN=1 (verificat mai jos).
+      'x-qa-dry-run': '1',
       ...headers,
     },
     body: Buffer.from(JSON.stringify(payload), 'utf8'),
   })
   const body = await response.json().catch(() => null)
-  return { status: response.status, body }
+  return { status: response.status, body, headers: response.headers }
 }
 
 // ─────────────────────────────────────────────── 1. formularul de contact
+{
+  // O cerere invalidă nu scrie nimic, dar spune dacă serverul a activat
+  // modul de test. Fără el, cererile valide de mai jos ar ajunge în panou ca
+  // mesaje false — baza locală e aceeași cu a site-ului live.
+  const probe = await postContact({})
+  if (probe.headers?.get?.('x-qa-dry-run') !== 'on') {
+    console.error(
+      '\nOpresc: serverul nu rulează cu QA_DRY_RUN=1, așa că cererile de test ar ajunge în baza reală.' +
+        '\nAdaugă QA_DRY_RUN=1 în .env.local și repornește serverul.\n'
+    )
+    process.exit(1)
+  }
+}
+
 setGroup('Formular de contact — validare')
 
 {
@@ -183,6 +205,7 @@ async function tg(method, payload) {
 
 const escapeHtml = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+if (SEND_TELEGRAM) {
 {
   // Exact aceleași cazuri care ar putea rupe parse_mode în producție.
   const cases = [
@@ -205,26 +228,33 @@ const escapeHtml = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
     await wait(400)
   }
 }
+} else {
+  console.log('  (sărite: mesajele de formatare scriu în grupul real; rulează cu QA_SEND_TELEGRAM=1)')
+}
 
 {
   const bad = await tg('sendMessage', { chat_id: '-1', text: 'test' })
   check('un chat_id greșit e raportat, nu ignorat', bad.ok === false, bad.description)
 }
 
-setGroup('Telegram — notificare pornită din formular')
-
-{
-  const before = Date.now()
-  const { status, body } = await postContact(
-    validPayload({
-      name: 'Verificare Notificare',
-      message: 'Mesaj cu semne speciale: < > & și diacritice: șțăîâ',
-      location: 'Bălți',
-    })
-  )
-  check('cererea a fost acceptată', status === 200 && body?.ok === true)
-  await wait(2500)
-  check('răspunsul a venit rapid, notificarea nu blochează', Date.now() - before < 4000, `${Date.now() - before}ms`)
+if (SEND_TELEGRAM) {
+  setGroup('Telegram — notificare pornită din formular')
+  
+  {
+    const before = Date.now()
+    const { status, body } = await postContact(
+      validPayload({
+        name: 'Verificare Notificare',
+        message: 'Mesaj cu semne speciale: < > & și diacritice: șțăîâ',
+        location: 'Bălți',
+      }),
+      // Aici vrem chiar lanțul real: cerere salvată, notificare în grup.
+      { 'x-qa-dry-run': '0' }
+    )
+    check('cererea a fost acceptată', status === 200 && body?.ok === true)
+    await wait(2500)
+    check('răspunsul a venit rapid, notificarea nu blochează', Date.now() - before < 4000, `${Date.now() - before}ms`)
+  }
 }
 
 // ─────────────────────────────────────────────── 4. autentificare admin
