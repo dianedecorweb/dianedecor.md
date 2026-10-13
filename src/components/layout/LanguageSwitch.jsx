@@ -24,7 +24,7 @@ export default function LanguageSwitch({ className }) {
             hrefLang={code}
             lang={code}
             aria-current={code === lang ? 'true' : undefined}
-            className="inline-flex h-11 min-w-10 items-center justify-center text-sm tracking-[0.08em] opacity-60 transition-opacity duration-200 ease-out hover:opacity-100 aria-[current=true]:underline aria-[current=true]:underline-offset-[6px] aria-[current=true]:opacity-100"
+            className="inline-flex h-11 min-w-10 items-center justify-center text-sm tracking-[0.08em] opacity-70 transition-opacity duration-200 ease-out hover:opacity-100 aria-[current=true]:underline aria-[current=true]:underline-offset-[6px] aria-[current=true]:opacity-100"
           >
             {code.toUpperCase()}
           </a>
