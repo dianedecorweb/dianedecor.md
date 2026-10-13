@@ -12,6 +12,9 @@ const nextConfig = {
     // asta, fiecare `import { MapPin }` trage arborele întreg în graf și abia
     // apoi îl taie minificatorul.
     optimizePackageImports: ['lucide-react'],
+    // 404 pentru adresele care nu ajung în nicio parte a aplicației: site-ul are
+    // rădăcina sub [lang], panoul are propria rădăcină, deci nu există un layout comun.
+    globalNotFound: true,
   },
   images: {
     // quality={85} is used across the site; Next 16 only serves qualities listed here.
@@ -46,11 +49,40 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Româna nu are prefix. /ro/... e doar adresa internă la care duc
+      // rescrierile de mai jos; cine o scrie de mână ajunge la adresa publică.
+      { source: '/ro', destination: '/', permanent: true },
+      { source: '/ro/:path*', destination: '/:path*', permanent: true },
+      {
+        source: '/ru/portofoliu',
+        has: [{ type: 'query', key: 'categorie', value: '(?<categorySlug>.*)' }],
+        destination: '/ru/portofoliu/categorie/:categorySlug',
+        permanent: true,
+      },
       {
         source: '/portofoliu',
         has: [{ type: 'query', key: 'categorie', value: '(?<categorySlug>.*)' }],
         destination: '/portofoliu/categorie/:categorySlug',
         permanent: true,
+      },
+    ]
+  },
+
+  /**
+   * Paginile publice stau sub [lang]. Adresele românești, fără prefix, ajung
+   * intern la /ro/...; vizitatorul vede tot /servicii.
+   *
+   * Ca tablou, rescrierile rulează după fișierele statice și rutele fixe
+   * (imagini, sitemap, /admin, /api) și înaintea rutelor dinamice, deci prind
+   * exact paginile publice. Excluderile acoperă căile dinamice care nu sunt
+   * ale site-ului: /ru (deja cu limbă), /admin/... și /api/... cu [id].
+   */
+  async rewrites() {
+    return [
+      { source: '/', destination: '/ro' },
+      {
+        source: '/:path((?!ru(?:/|$)|ro(?:/|$)|admin(?:/|$)|api(?:/|$)|_next(?:/|$)).+)',
+        destination: '/ro/:path',
       },
     ]
   },

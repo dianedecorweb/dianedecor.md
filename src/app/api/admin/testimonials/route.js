@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 
 import { canEditContent } from '@/lib/admin-queries'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { revalidatePublicSite } from '@/lib/revalidate'
 import {
   testimonialMessages,
   testimonialSchema,
@@ -45,8 +45,7 @@ export async function POST(request) {
       select: { id: true },
     })
 
-    // Reviews appear only on the home page.
-    revalidatePath('/')
+    revalidatePublicSite()
     return NextResponse.json({ ok: true, id: testimonial.id })
   } catch (error) {
     console.error('[api/admin/testimonials] create failed:', error.message)

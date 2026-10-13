@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 
 import { canEditContent } from '@/lib/admin-queries'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { serviceMessages, serviceSchema, toServiceFieldErrors } from '@/lib/service-schema'
+import { revalidatePublicSite } from '@/lib/revalidate'
 import { isValidObjectId } from '@/lib/utils'
 
-/** Every public page that shows a service: list, detail, and the home page grid. */
-function revalidateServices() {
-  revalidatePath('/')
-  revalidatePath('/servicii')
-  revalidatePath('/(site)/servicii/[slug]', 'page')
-}
 
 export async function PATCH(request, { params }) {
   // Re-checked here on purpose: the proxy redirect is not the only guard.
@@ -52,7 +46,7 @@ export async function PATCH(request, { params }) {
 
   try {
     await prisma.service.update({ where: { id }, data, select: { id: true } })
-    revalidateServices()
+    revalidatePublicSite()
     return NextResponse.json({ ok: true })
   } catch (error) {
     if (error?.code === 'P2025') {

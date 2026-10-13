@@ -1,19 +1,8 @@
-import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate'
 
-/**
- * Every public page that shows portfolio content, refreshed after any write.
- *
- * Whole route patterns, not single slugs: one project change also moves the
- * category lists, the "previous / next" links on its neighbours and the related
- * projects on service pages. Refreshing only the edited project's own URL left
- * those stale for up to five minutes — including links to a deleted project.
- */
+/** Every public page that can show portfolio content, in both languages. */
 export function revalidatePortfolio() {
-  revalidatePath('/')
-  revalidatePath('/portofoliu')
-  revalidatePath('/(site)/portofoliu/[slug]', 'page')
-  revalidatePath('/(site)/portofoliu/categorie/[slug]', 'page')
-  revalidatePath('/(site)/servicii/[slug]', 'page')
+  revalidatePublicSite()
 }
 
 /** Maps validated form input onto the Prisma columns. */

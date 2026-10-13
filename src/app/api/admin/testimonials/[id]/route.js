@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 
 import { canEditContent } from '@/lib/admin-queries'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { revalidatePublicSite } from '@/lib/revalidate'
 import {
   testimonialMessages,
   testimonialSchema,
@@ -67,7 +67,7 @@ export async function PATCH(request, { params }) {
       data: { ...data, featured: data.published },
       select: { id: true },
     })
-    revalidatePath('/')
+    revalidatePublicSite()
     return NextResponse.json({ ok: true })
   } catch (error) {
     if (isMissing(error)) {
@@ -85,7 +85,7 @@ export async function DELETE(request, { params }) {
 
   try {
     await prisma.testimonial.delete({ where: { id }, select: { id: true } })
-    revalidatePath('/')
+    revalidatePublicSite()
     return NextResponse.json({ ok: true })
   } catch (error) {
     if (isMissing(error)) {

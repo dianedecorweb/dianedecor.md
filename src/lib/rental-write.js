@@ -1,12 +1,11 @@
-import { revalidatePath } from 'next/cache'
+import { revalidatePublicSite } from '@/lib/revalidate'
 
 import { prisma } from '@/lib/prisma'
 import { uniqueSlug } from '@/lib/slug'
 
-/** The catalogue page and the rental service page that links to it. The sitemap is built per request. */
+/** The catalogue appears on its own page and is linked from the rental service page. */
 export function revalidateRental() {
-  revalidatePath('/chirie-decor')
-  revalidatePath('/(site)/servicii/[slug]', 'page')
+  revalidatePublicSite()
 }
 
 /** A slug from the name, unique among the other items. */
