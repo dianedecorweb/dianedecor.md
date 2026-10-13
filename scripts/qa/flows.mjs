@@ -200,6 +200,18 @@ report.check('formularul gol de recenzie arată erori', (await count('[id$="-err
 const missingReview = await page.evaluate(`fetch('/admin/recenzii/nu-exista').then((r) => r.status)`)
 report.check('o recenzie inexistentă dă 404', missingReview === 404, String(missingReview))
 
+await page.goto(`${BASE}/admin/statistici`, 2400)
+report.check('statisticile se deschid', (await text('h1')) === 'Statistici')
+report.check('graficul are 12 luni', (await count('ol[aria-label="Cereri pe lună"] > li')) === 12)
+
+await page.goto(`${BASE}/admin/servicii`, 2400)
+report.check('serviciile se deschid în panou', (await count('a[href^="/admin/servicii/"]')) >= 7)
+await click('a[href^="/admin/servicii/"]')
+await page.wait(2000)
+// Un `step` mai mare de 1 face browserul să refuze în tăcere prețuri ca 1234.
+const priceStep = await page.evaluate(`document.querySelector('#priceFrom')?.getAttribute('step') ?? '1'`)
+report.check('prețul acceptă orice sumă în lei', priceStep === '1', `step=${priceStep}`)
+
 // ──────────────────────────────────────────── fereastra de contact
 report.group('Fereastra de contact la intrare')
 

@@ -138,6 +138,21 @@ export const serviceCategoryMap = {
 }
 
 /** Options for the contact form's event type select. */
+/**
+ * Ce tip de eveniment se preselectează în formular când vizitatorul vine de pe
+ * pagina unui serviciu (`/contact?tip=decor-nunta`). Legat de adresa
+ * serviciului, nu de titlu: titlul se poate schimba din panou, adresa nu.
+ */
+export const serviceEventTypes = {
+  'decor-nunta': 'Decor nuntă',
+  'decor-cumetrie': 'Decor cumetrie',
+  'cerere-in-casatorie': 'Cerere în căsătorie',
+  'decor-aniversare': 'Decor aniversare',
+  'cununie-in-aer-liber': 'Cununie în aer liber',
+  'baloane-cu-heliu': 'Baloane cu heliu',
+  'chirie-decor': 'Chirie decor',
+}
+
 export const eventTypeOptions = [
   'Decor nuntă',
   'Decor cumetrie',

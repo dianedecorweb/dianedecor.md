@@ -5,8 +5,7 @@ import ContactForm from '@/components/contact/ContactForm'
 import FaqAccordion from '@/components/contact/FaqAccordion'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/layout/SectionHeading'
-import { getServices } from '@/lib/queries'
-import { eventTypeOptions, siteConfig } from '@/lib/site-config'
+import { serviceEventTypes, siteConfig } from '@/lib/site-config'
 
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
 export const revalidate = 300
@@ -25,11 +24,8 @@ export const metadata = {
  * on load. Every query this page runs is cached, so the render is near-instant.
  */
 export default async function ContactPage({ searchParams }) {
-  const [{ tip, din }, services] = await Promise.all([searchParams, getServices()])
-
-  const preselected = services.find((service) => service.slug === tip)
-  const initialEventType =
-    preselected && eventTypeOptions.includes(preselected.title) ? preselected.title : ''
+  const { tip, din } = await searchParams
+  const initialEventType = serviceEventTypes[tip] ?? ''
 
   return (
     <>

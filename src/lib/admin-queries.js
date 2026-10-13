@@ -226,3 +226,109 @@ export async function getAdminInbox({ status = null, q = '', due = false } = {})
     truncated: shownTotal > LIMIT,
   }
 }
+
+const MONTH_NAMES = ['ian', 'feb', 'mar', 'apr', 'mai', 'iun', 'iul', 'aug', 'sep', 'oct', 'nov', 'dec']
+
+/**
+ * Cifrele pentru pagina de statistici, adunate din cererile ultimelor 12 luni
+ * și din apăsările ultimelor 30 de zile. Volumul unui studio e de ordinul
+ * sutelor de cereri pe an, așa că se numără aici, nu în bază.
+ */
+export async function getAdminStats() {
+  const now = new Date()
+  const months = []
+  for (let back = 11; back >= 0; back--) {
+    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1))
+    months.push({
+      key: `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`,
+      label: `${MONTH_NAMES[date.getUTCMonth()]} ${String(date.getUTCFullYear()).slice(2)}`,
+      count: 0,
+    })
+  }
+  const since = new Date(`${months[0].key}-01T00:00:00.000Z`)
+
+  const clickSince = new Date(now.getTime() - 29 * 24 * 60 * 60 * 1000)
+  const clickSinceDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Chisinau' }).format(clickSince)
+
+  const empty = { months, byType: [], bySource: [], byStatus: {}, total: 0, clicks: [], clickTotal: 0 }
+  if (!canEditContent()) return empty
+
+  const [messages, clickRows] = await Promise.all([
+    prisma.contactMessage.findMany({
+      where: { createdAt: { gte: since } },
+      select: { createdAt: true, eventType: true, source: true, status: true },
+    }),
+    prisma.channelClick.findMany({ where: { day: { gte: clickSinceDay } } }),
+  ])
+
+  const tally = (rows, pick) => {
+    const counts = new Map()
+    for (const row of rows) counts.set(pick(row), (counts.get(pick(row)) ?? 0) + 1)
+    return [...counts.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count)
+  }
+
+  const byMonth = new Map(months.map((month) => [month.key, month]))
+  for (const message of messages) {
+    const key = message.createdAt.toISOString().slice(0, 7)
+    const month = byMonth.get(key)
+    if (month) month.count += 1
+  }
+
+  const byStatus = { NEW: 0, READ: 0, CONTACTED: 0, ARCHIVED: 0 }
+  for (const message of messages) byStatus[message.status] += 1
+
+  const clicks = new Map()
+  for (const row of clickRows) {
+    const key = `${row.channel}|${row.source}`
+    clicks.set(key, (clicks.get(key) ?? 0) + row.count)
+  }
+
+  return {
+    months,
+    // „Altceva — petrecere corporativă" se numără la „Altceva".
+    byType: tally(messages, (message) => message.eventType.split(' — ')[0]),
+    bySource: tally(messages, (message) => message.source ?? 'site'),
+    byStatus,
+    total: messages.length,
+    clicks: [...clicks.entries()]
+      .map(([key, count]) => {
+        const [channel, source] = key.split('|')
+        return { channel, source, count }
+      })
+      .sort((a, b) => b.count - a.count),
+    clickTotal: clickRows.reduce((sum, row) => sum + row.count, 0),
+  }
+}
+
+const SERVICE_FIELDS = {
+  id: true,
+  slug: true,
+  title: true,
+  shortDescription: true,
+  description: true,
+  features: true,
+  priceFrom: true,
+  coverImage: true,
+  published: true,
+  order: true,
+}
+
+/** Every service, shown or hidden, in the site's order. */
+export async function getAdminServices() {
+  if (!canEditContent()) {
+    return fallback.services.map((service, index) => ({
+      ...service,
+      id: service.slug,
+      published: true,
+      order: index + 1,
+    }))
+  }
+  return prisma.service.findMany({ orderBy: { order: 'asc' }, select: SERVICE_FIELDS })
+}
+
+export async function getAdminService(id) {
+  if (!canEditContent()) {
+    return (await getAdminServices()).find((service) => service.id === id) ?? null
+  }
+  return prisma.service.findUnique({ where: { id }, select: SERVICE_FIELDS })
+}
