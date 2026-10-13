@@ -1,3 +1,4 @@
+import BeforeAfterShowcase from '@/components/home/BeforeAfterShowcase'
 import CtaBand from '@/components/home/CtaBand'
 import FeaturedProjects from '@/components/home/FeaturedProjects'
 import Hero from '@/components/home/Hero'
@@ -7,7 +8,12 @@ import TestimonialsSlider from '@/components/home/TestimonialsSlider'
 import Section from '@/components/layout/Section'
 import SectionHeading from '@/components/layout/SectionHeading'
 import JsonLd, { localBusinessSchema } from '@/components/seo/JsonLd'
-import { getFeaturedProjects, getFeaturedTestimonials, getServices } from '@/lib/queries'
+import {
+  getBeforeAfterShowcase,
+  getFeaturedProjects,
+  getFeaturedTestimonials,
+  getServices,
+} from '@/lib/queries'
 
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
 export const revalidate = 300
@@ -17,10 +23,11 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const [featuredProjects, services, testimonials] = await Promise.all([
+  const [featuredProjects, services, testimonials, showcase] = await Promise.all([
     getFeaturedProjects(4),
     getServices(),
     getFeaturedTestimonials(),
+    getBeforeAfterShowcase(),
   ])
 
   return (
@@ -30,6 +37,7 @@ export default async function HomePage() {
       <Hero />
       <ServicesPreview services={services} />
       <FeaturedProjects projects={featuredProjects} />
+      <BeforeAfterShowcase project={showcase} />
       <ProcessSteps />
 
       {testimonials.length > 0 ? (

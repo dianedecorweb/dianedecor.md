@@ -28,6 +28,7 @@ export function toProjectData(input, categoryId, slug) {
     shortDescription: input.shortDescription,
     description: input.description,
     coverImage: input.coverImage,
+    beforeImage: input.beforeImage ?? null,
     images: input.images,
     featured: input.featured,
     published: input.published,

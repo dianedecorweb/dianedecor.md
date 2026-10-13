@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, MapPin } from 'lucide-react'
 import CtaBand from '@/components/home/CtaBand'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import Container from '@/components/layout/Container'
+import BeforeAfter from '@/components/portfolio/BeforeAfter'
 import Lightbox from '@/components/portfolio/Lightbox'
 import JsonLd, { breadcrumbSchema } from '@/components/seo/JsonLd'
 import Badge from '@/components/ui/Badge'
@@ -121,6 +122,15 @@ export default async function ProjectPage({ params }) {
           ))}
         </div>
       </Container>
+
+      {project.beforeImage ? (
+        <Container className="pb-16 md:pb-20">
+          <h2 className="text-3xl">Înainte și după</h2>
+          <div className="mt-6">
+            <BeforeAfter before={project.beforeImage} after={project.coverImage} title={project.title} />
+          </div>
+        </Container>
+      ) : null}
 
       <Container className="pb-20 md:pb-28">
         <h2 className="sr-only">Galerie foto</h2>

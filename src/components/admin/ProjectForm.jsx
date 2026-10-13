@@ -24,6 +24,7 @@ const EMPTY = {
   shortDescription: '',
   description: '',
   coverImage: '',
+  beforeImage: '',
   images: [''],
   featured: false,
   published: true,
@@ -238,6 +239,41 @@ export default function ProjectForm({ project, categories, readOnly }) {
                 setValues((current) => ({ ...current, coverImage: url }))
               }
             />
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <FieldLabel htmlFor="beforeImage" optional>
+            Sala înainte de decor
+          </FieldLabel>
+          <Input
+            {...field('beforeImage')}
+            type="text"
+            className="mt-2"
+            aria-describedby="beforeImage-hint"
+            placeholder="O poză cu sala goală, din același unghi ca și coperta"
+          />
+          <FieldHint id="beforeImage-hint">
+            Cu ea, pagina proiectului arată un comparator „înainte / după” cu coperta. Merge cel
+            mai bine o poză făcută din același loc.
+          </FieldHint>
+          <FieldError id="beforeImage-error">{errors.beforeImage}</FieldError>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <ImageUploadButton
+              label="Încarcă poza „înainte”"
+              disabled={disabled}
+              onUploaded={({ url }) => setValues((current) => ({ ...current, beforeImage: url }))}
+            />
+            {values.beforeImage ? (
+              <button
+                type="button"
+                onClick={() => setValues((current) => ({ ...current, beforeImage: '' }))}
+                disabled={disabled}
+                className="h-11 px-2 text-sm text-muted underline-offset-4 hover:text-ink hover:underline"
+              >
+                Scoate poza
+              </button>
+            ) : null}
           </div>
         </div>
 

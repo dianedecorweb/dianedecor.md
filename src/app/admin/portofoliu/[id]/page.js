@@ -35,6 +35,7 @@ export default async function EditProjectPage({ params }) {
     shortDescription: project.shortDescription,
     description: project.description,
     coverImage: project.coverImage,
+    beforeImage: project.beforeImage ?? '',
     images: project.images?.length ? project.images : [''],
     featured: project.featured,
     published: project.published,

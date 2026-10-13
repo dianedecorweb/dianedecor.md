@@ -127,6 +127,7 @@ export async function getProjectBySlug(slug) {
           ...projectCardSelect,
           description: true,
           images: true,
+          beforeImage: true,
         },
       }),
     () => {
@@ -308,4 +309,22 @@ export async function getRentalItemsBySlugs(slugs) {
     () => []
   )
   return wanted.map((slug) => items.find((item) => item.slug === slug)).filter(Boolean)
+}
+
+/** One project with a "before" photo for the home page, featured ones first. */
+export async function getBeforeAfterShowcase() {
+  return read(
+    'getBeforeAfterShowcase',
+    () =>
+      prisma.project.findFirst({
+        where: {
+          published: true,
+          beforeImage: { not: null },
+          category: { is: { published: true } },
+        },
+        orderBy: [{ featured: 'desc' }, { order: 'asc' }],
+        select: { slug: true, title: true, coverImage: true, beforeImage: true },
+      }),
+    () => null
+  )
 }

@@ -69,6 +69,9 @@ export const projectSchema = z.object({
 
   coverImage: imagePath,
 
+  // Sala goală, înainte de decor. Opțională; cu ea, pagina arată comparația.
+  beforeImage: optional(imagePath),
+
   images: z
     .array(imagePath)
     .min(1, 'Adaugă cel puțin o imagine în galerie.')
