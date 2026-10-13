@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { CircleCheck, Loader2, TriangleAlert } from 'lucide-react'
+import { CalendarCheck, CalendarX, CircleCheck, Loader2, TriangleAlert } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 import Input, { FieldError, FieldLabel } from '@/components/ui/Input'
@@ -33,8 +33,31 @@ async function validate(values) {
   return result.success ? null : toFieldErrors(result.error)
 }
 
+/**
+ * Spune imediat dacă ziua aleasă e deja rezervată. Întoarce null cât nu știm
+ * (nicio dată, se verifică, bază de date lipsă), ca formularul să nu afișeze
+ * nimic în loc de un răspuns greșit.
+ */
+function useAvailability(day) {
+  const [result, setResult] = useState({ day: null, booked: null })
+
+  useEffect(() => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return undefined
+    const controller = new AbortController()
+    fetch(`/api/availability?data=${day}`, { signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((body) => setResult({ day, booked: body?.booked ?? null }))
+      .catch(() => {})
+    return () => controller.abort()
+  }, [day])
+
+  // Un răspuns pentru altă zi decât cea aleasă acum nu mai e valabil.
+  return result.day === day ? result.booked : null
+}
+
 export default function ContactForm({ initialEventType = '', source = 'site' }) {
   const [values, setValues] = useState({ ...EMPTY_FORM, eventType: initialEventType })
+  const booked = useAvailability(values.eventDate)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle')
   const [bannerMessage, setBannerMessage] = useState(null)
@@ -195,6 +218,19 @@ export default function ContactForm({ initialEventType = '', source = 'site' }) 
           </FieldLabel>
           <Input {...fieldProps('eventDate')} type="date" className="mt-2" />
           <FieldError id="eventDate-error">{errors.eventDate}</FieldError>
+          {!errors.eventDate && booked === false ? (
+            <p role="status" className="mt-2 flex items-center gap-2 text-sm text-sage">
+              <CalendarCheck size={16} aria-hidden="true" />
+              Data e liberă la noi.
+            </p>
+          ) : null}
+          {!errors.eventDate && booked === true ? (
+            <p role="status" className="mt-2 flex items-start gap-2 text-sm text-accent-deep">
+              <CalendarX size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              Avem deja un eveniment în ziua asta. Scrie-ne totuși: uneori putem prelua și un
+              decor mai mic sau te ajutăm cu o zi apropiată.
+            </p>
+          ) : null}
         </div>
 
         <div>

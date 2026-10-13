@@ -332,3 +332,13 @@ export async function getAdminService(id) {
   }
   return prisma.service.findUnique({ where: { id }, select: SERVICE_FIELDS })
 }
+
+/** Zilele rezervate de azi încolo, cele mai apropiate primele. */
+export async function getUpcomingBookedDates() {
+  if (!canEditContent()) return []
+  return prisma.bookedDate.findMany({
+    where: { date: { gte: chisinauToday() } },
+    orderBy: { date: 'asc' },
+    select: { id: true, date: true, note: true },
+  })
+}

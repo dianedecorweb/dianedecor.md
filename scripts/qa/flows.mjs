@@ -212,6 +212,10 @@ await page.wait(2000)
 const priceStep = await page.evaluate(`document.querySelector('#priceFrom')?.getAttribute('step') ?? '1'`)
 report.check('prețul acceptă orice sumă în lei', priceStep === '1', `step=${priceStep}`)
 
+await page.goto(BASE + '/admin/calendar', 2400)
+report.check('calendarul de zile ocupate se deschide', (await text('h1')) === 'Calendar')
+report.check('meniul lateral duce la Calendar', await exists('a[href="/admin/calendar"][aria-current="page"]'))
+
 // ──────────────────────────────────────────── fereastra de contact
 report.group('Fereastra de contact la intrare')
 

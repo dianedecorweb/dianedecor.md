@@ -257,6 +257,21 @@ if (SEND_TELEGRAM) {
   }
 }
 
+// ─────────────────────────────────────────────── calendar
+setGroup('Calendar — disponibilitate publică')
+
+{
+  const ask = async (day) => {
+    const response = await fetch(`${BASE}/api/availability?data=${encodeURIComponent(day)}`)
+    return { status: response.status, body: await response.json().catch(() => null) }
+  }
+  const far = await ask('2031-06-14')
+  check('o zi validă primește răspuns da / nu', far.status === 200 && typeof far.body?.booked === 'boolean', JSON.stringify(far.body))
+  check('răspunsul public nu are altceva decât da / nu', Object.keys(far.body ?? {}).sort().join() === 'booked,ok')
+  check('dată în alt format → 400', (await ask('14.06.2031')).status === 400)
+  check('30 februarie → 400', (await ask('2031-02-30')).status === 400)
+}
+
 // ─────────────────────────────────────────────── 4. autentificare admin
 setGroup('Autentificare admin')
 
