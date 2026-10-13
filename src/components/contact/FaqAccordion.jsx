@@ -3,17 +3,16 @@
 import { Minus, Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { faqItems } from '@/lib/site-config'
-
-export default function FaqAccordion() {
+/** Întrebările vin de pe server, din dicționarul limbii: în browser ajunge doar limba paginii. */
+export default function FaqAccordion({ title, items }) {
   const [openIndex, setOpenIndex] = useState(0)
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-2xl">Întrebări frecvente</h2>
+      <h2 className="text-2xl">{title}</h2>
 
       <ul className="flex flex-col border-t border-line">
-        {faqItems.map((item, index) => {
+        {items.map((item, index) => {
           const isOpen = openIndex === index
           const panelId = `faq-panel-${index}`
           const buttonId = `faq-button-${index}`

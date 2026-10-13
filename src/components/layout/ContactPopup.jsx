@@ -1,11 +1,11 @@
 'use client'
 
 import { Heart, X } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
 import ChannelLink from '@/components/contact/ChannelLink'
 import { contactChannels } from '@/components/contact/contactChannels'
+import { useDictionary, usePagePath } from '@/i18n/client'
 
 const SEEN_KEY = 'dd-contact-popup-seen'
 const OPEN_DELAY_MS = 1200
@@ -38,7 +38,8 @@ function markSeen() {
  */
 export default function ContactPopup() {
   const dialogRef = useRef(null)
-  const pathname = usePathname()
+  const { channels, popup } = useDictionary()
+  const pathname = usePagePath()
 
   useEffect(() => {
     // Automated browsers (tests, audits) never need greeting.
@@ -68,27 +69,24 @@ export default function ContactPopup() {
         <button
           type="button"
           onClick={close}
-          aria-label="Închide"
+          aria-label={channels.close}
           className="absolute top-2 right-2 inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors duration-200 ease-out hover:bg-ivory hover:text-ink"
         >
           <X size={20} aria-hidden="true" />
         </button>
 
         <h2 id="contact-popup-title" className="font-display text-[1.875rem] leading-tight">
-          Decor pentru evenimente în Moldova
+          {popup.title}
         </h2>
         <Heart
           size={18}
           aria-hidden="true"
           className="mx-auto mt-3 fill-pastel-rose-deep text-[#c98fa2]"
         />
-        <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          Nunți, cumetrii, cereri în căsătorie și aniversări, în Chișinău și în toată țara.
-          Spune-ne data și îți facem o propunere.
-        </p>
+        <p className="mt-3 text-sm leading-relaxed text-ink-soft">{popup.text}</p>
 
         <ul className="mt-6 flex flex-col gap-3">
-          {contactChannels.map((channel) => {
+          {contactChannels(channels).map((channel) => {
             const Icon = channel.icon
             return (
               <li key={channel.key}>

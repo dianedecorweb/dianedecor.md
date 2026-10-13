@@ -1,7 +1,8 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
+
+import { usePagePath } from '@/i18n/client'
 
 /**
  * The only client-side JavaScript the header needs.
@@ -12,7 +13,8 @@ import { useEffect } from 'react'
  * Header, its navigation and the footer as pure server components.
  */
 export default function ScrollState() {
-  const pathname = usePathname()
+  // Fără prefixul /ru, ca regulile din globals.css să meargă la fel în ambele limbi.
+  const pathname = usePagePath()
 
   useEffect(() => {
     document.documentElement.dataset.route = pathname

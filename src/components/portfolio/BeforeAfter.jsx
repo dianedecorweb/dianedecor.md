@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { ChevronsLeftRight } from 'lucide-react'
 import { useState } from 'react'
 
+import { useDictionary } from '@/i18n/client'
+
 /**
  * Sala goală și sala decorată, una peste alta, despărțite de o linie care se
  * trage cu degetul, cu mouse-ul sau cu săgețile.
@@ -14,6 +16,7 @@ import { useState } from 'react'
  * deruleze în sus și în jos când degetul merge pe verticală.
  */
 export default function BeforeAfter({ before, after, title }) {
+  const { beforeAfter: t } = useDictionary()
   const [position, setPosition] = useState(50)
 
   return (
@@ -21,7 +24,7 @@ export default function BeforeAfter({ before, after, title }) {
       <div className="relative aspect-4/3 w-full overflow-hidden bg-line select-none md:aspect-video">
         <Image
           src={after}
-          alt={`${title}, după decor`}
+          alt={t.afterAlt(title)}
           fill
           sizes="(min-width: 1280px) 1184px, 100vw"
           quality={85}
@@ -30,7 +33,7 @@ export default function BeforeAfter({ before, after, title }) {
         <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
           <Image
             src={before}
-            alt={`${title}, înainte de decor`}
+            alt={t.beforeAlt(title)}
             fill
             sizes="(min-width: 1280px) 1184px, 100vw"
             quality={85}
@@ -39,10 +42,10 @@ export default function BeforeAfter({ before, after, title }) {
         </div>
 
         <span className="absolute top-3 left-3 rounded-full bg-ink/70 px-3 py-1 text-xs tracking-[0.14em] text-ivory uppercase">
-          Înainte
+          {t.before}
         </span>
         <span className="absolute top-3 right-3 rounded-full bg-ink/70 px-3 py-1 text-xs tracking-[0.14em] text-ivory uppercase">
-          După
+          {t.after}
         </span>
 
         <input
@@ -52,8 +55,8 @@ export default function BeforeAfter({ before, after, title }) {
           step="1"
           value={position}
           onChange={(event) => setPosition(Number(event.target.value))}
-          aria-label="Compară sala înainte și după decor"
-          aria-valuetext={`${position}% înainte`}
+          aria-label={t.slider}
+          aria-valuetext={t.value(position)}
           className="peer absolute inset-0 z-10 h-full w-full cursor-ew-resize opacity-0"
           style={{ touchAction: 'pan-y' }}
         />
@@ -69,7 +72,7 @@ export default function BeforeAfter({ before, after, title }) {
         </span>
       </div>
       <figcaption className="mt-3 text-sm text-muted">
-        Trage de linie ca să vezi sala înainte și după decor.
+        {t.caption}
       </figcaption>
     </figure>
   )

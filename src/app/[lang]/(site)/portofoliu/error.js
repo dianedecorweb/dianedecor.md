@@ -1,15 +1,11 @@
 'use client'
 
 import ErrorState from '@/components/ui/ErrorState'
+import { useDictionary } from '@/i18n/client'
 
 export default function PortfolioError({ error, reset }) {
+  const { errors } = useDictionary()
   console.error('[portofoliu]', error)
 
-  return (
-    <ErrorState
-      title="Nu am putut încărca portofoliul"
-      description="A apărut o problemă la încărcarea proiectelor. Încearcă din nou sau sună-ne direct."
-      onRetry={reset}
-    />
-  )
+  return <ErrorState title={errors.portfolioTitle} description={errors.portfolioText} onRetry={reset} />
 }

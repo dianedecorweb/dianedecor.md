@@ -1,9 +1,6 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-
-import { navigation } from '@/lib/site-config'
+import { Link, useDictionary, usePagePath } from '@/i18n/client'
 
 /**
  * The desktop navigation list.
@@ -15,11 +12,12 @@ import { navigation } from '@/lib/site-config'
  * server component.
  */
 export default function NavLinks() {
-  const pathname = usePathname()
+  const { nav } = useDictionary()
+  const pathname = usePagePath()
 
   return (
     <ul className="flex items-center gap-8">
-      {navigation.map((item) => {
+      {nav.map((item) => {
         const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
         return (

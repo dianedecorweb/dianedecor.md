@@ -1,3 +1,4 @@
+import { localePath } from '@/i18n/config'
 import { getSiteUrl, siteConfig } from '@/lib/site-config'
 
 /** Renders one JSON-LD block. Data is built by the helpers below. */
@@ -10,7 +11,8 @@ export default function JsonLd({ data }) {
   )
 }
 
-export function localBusinessSchema() {
+/** `t` e dicționarul limbii paginii: descrierea și țara se dau în limba ei. */
+export function localBusinessSchema(t) {
   const siteUrl = getSiteUrl()
 
   return {
@@ -18,15 +20,15 @@ export function localBusinessSchema() {
     '@type': 'LocalBusiness',
     '@id': `${siteUrl}/#studio`,
     name: siteConfig.name,
-    description: siteConfig.description,
-    url: siteUrl,
+    description: t.meta.description,
+    url: `${siteUrl}${localePath(t.lang, '/')}`,
     telephone: siteConfig.phoneHref.replace('tel:', ''),
     email: siteConfig.email,
     image: `${siteUrl}/images/og-image.jpg`,
     priceRange: 'MDL',
     areaServed: {
       '@type': 'Country',
-      name: 'Republica Moldova',
+      name: t.meta.country,
     },
     address: {
       '@type': 'PostalAddress',
@@ -37,7 +39,7 @@ export function localBusinessSchema() {
   }
 }
 
-export function breadcrumbSchema(items) {
+export function breadcrumbSchema(items, lang = 'ro') {
   const siteUrl = getSiteUrl()
 
   return {
@@ -47,7 +49,7 @@ export function breadcrumbSchema(items) {
       '@type': 'ListItem',
       position: index + 1,
       name: item.label,
-      item: `${siteUrl}${item.href}`,
+      item: `${siteUrl}${localePath(lang, item.href)}`,
     })),
   }
 }

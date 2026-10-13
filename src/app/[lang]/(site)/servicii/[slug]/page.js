@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 
 import CtaBand from '@/components/home/CtaBand'
@@ -9,8 +8,11 @@ import Container from '@/components/layout/Container'
 import ProjectCard from '@/components/portfolio/ProjectCard'
 import JsonLd, { breadcrumbSchema } from '@/components/seo/JsonLd'
 import Badge from '@/components/ui/Badge'
-import { formatPriceFrom, toParagraphs } from '@/lib/format'
 import Icon from '@/components/ui/Icon'
+import { getDictionary } from '@/i18n'
+import { Link } from '@/i18n/client'
+import { alternatesFor, localePath } from '@/i18n/config'
+import { formatPriceFrom, toParagraphs } from '@/lib/format'
 import { getRelatedProjects, getRentalItems, getServiceBySlug, getServiceSlugs } from '@/lib/queries'
 import { serviceCategoryMap } from '@/lib/site-config'
 import { truncate } from '@/lib/utils'
@@ -24,20 +26,21 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params
+  const { lang, slug } = await params
   const service = await getServiceBySlug(slug)
 
-  if (!service) return { title: 'Serviciu indisponibil' }
+  if (!service) return { title: getDictionary(lang).services.unavailable }
 
+  const path = `/servicii/${service.slug}`
   return {
     title: service.title,
     description: truncate(service.shortDescription, 160),
-    alternates: { canonical: `/servicii/${service.slug}` },
+    alternates: alternatesFor(lang, path),
     openGraph: {
       type: 'article',
       title: service.title,
       description: truncate(service.shortDescription, 160),
-      url: `/servicii/${service.slug}`,
+      url: localePath(lang, path),
       // Coperta e opțională la servicii; fără ea rămâne imaginea generală.
       images: service.coverImage ? [{ url: service.coverImage, alt: service.title }] : undefined,
     },
@@ -53,7 +56,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServicePage({ params }) {
-  const { slug } = await params
+  const { lang, slug } = await params
+  const t = getDictionary(lang)
   const service = await getServiceBySlug(slug)
 
   if (!service) notFound()
@@ -67,21 +71,21 @@ export default async function ServicePage({ params }) {
   const hasRentalCatalog =
     service.slug === 'chirie-decor' && (await getRentalItems()).length > 0
 
-  const priceFrom = formatPriceFrom(service.priceFrom)
+  const priceFrom = formatPriceFrom(service.priceFrom, lang)
   const paragraphs = toParagraphs(service.description)
 
   const crumbs = [
-    { label: 'Acasă', href: '/' },
-    { label: 'Servicii', href: '/servicii' },
+    { label: t.common.home, href: '/' },
+    { label: t.services.metaTitle, href: '/servicii' },
     { label: service.title, href: `/servicii/${service.slug}` },
   ]
 
   return (
     <>
-      <JsonLd data={breadcrumbSchema(crumbs)} />
+      <JsonLd data={breadcrumbSchema(crumbs, lang)} />
 
       <Container className="pt-12 pb-10 md:pt-16">
-        <Breadcrumbs items={crumbs} />
+        <Breadcrumbs items={crumbs} label={t.layout.breadcrumbs} />
 
         <div className="mt-8 flex flex-col gap-5">
           <Icon name={service.icon} size={30} strokeWidth={1.25} aria-hidden="true" className="text-accent" />
@@ -95,7 +99,7 @@ export default async function ServicePage({ params }) {
         <div className="relative aspect-3/2 w-full overflow-hidden bg-line md:aspect-[21/9]">
           <Image
             src={service.coverImage}
-            alt={`Exemplu de ${service.title.toLowerCase()} realizat de DianeDecor`}
+            alt={t.common.servicePhotoAlt(service.title)}
             fill
             sizes="(min-width: 1280px) 1184px, 100vw"
             quality={85}
@@ -114,7 +118,7 @@ export default async function ServicePage({ params }) {
           </div>
 
           <div className="border border-line bg-paper p-6 md:p-8">
-            <h2 className="text-2xl">Ce include</h2>
+            <h2 className="text-2xl">{t.services.includes}</h2>
             <ul className="mt-6 flex flex-col gap-3">
               {service.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-3 text-sm text-ink-soft">
@@ -128,7 +132,7 @@ export default async function ServicePage({ params }) {
                 href="/chirie-decor"
                 className="mt-8 inline-flex h-12 items-center gap-2 rounded-[3px] bg-ink px-6 text-sm font-medium text-ivory transition-colors duration-200 ease-out hover:bg-accent-deep"
               >
-                Vezi catalogul de chirie
+                {t.services.rentalCatalog}
                 <ArrowRight size={16} aria-hidden="true" />
               </Link>
             ) : null}
@@ -139,11 +143,11 @@ export default async function ServicePage({ params }) {
       {relatedProjects.length > 0 ? (
         <Container className="pb-20 md:pb-28">
           <div className="flex flex-col gap-8 border-t border-line pt-12">
-            <h2 className="text-3xl">Proiecte de acest tip</h2>
+            <h2 className="text-3xl">{t.services.relatedProjects}</h2>
             <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
               {relatedProjects.map((project) => (
                 <li key={project.slug}>
-                  <ProjectCard project={project} />
+                  <ProjectCard project={project} t={t} />
                 </li>
               ))}
             </ul>
@@ -152,8 +156,9 @@ export default async function ServicePage({ params }) {
       ) : null}
 
       <CtaBand
-        title={`Vrei o ofertă pentru ${service.title.toLowerCase()}?`}
-        description="Scrie-ne data, locația și numărul de invitați. Îți răspundem în cel mult 24 de ore."
+        t={t}
+        title={t.services.ctaTitle(service.title)}
+        description={t.services.ctaText}
         ctaHref={`/contact?tip=${service.slug}`}
       />
     </>

@@ -5,17 +5,22 @@ import ContactForm from '@/components/contact/ContactForm'
 import FaqAccordion from '@/components/contact/FaqAccordion'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/layout/SectionHeading'
+import { getDictionary } from '@/i18n'
+import { alternatesFor } from '@/i18n/config'
 import { getRentalItemsBySlugs } from '@/lib/queries'
 import { serviceEventTypes, siteConfig } from '@/lib/site-config'
 
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
 export const revalidate = 300
 
-export const metadata = {
-  title: 'Contact',
-  description:
-    'Cere o ofertă pentru decorul evenimentului tău. Telefon, WhatsApp și formular — răspundem în cel mult 24 de ore.',
-  alternates: { canonical: '/contact' },
+export async function generateMetadata({ params }) {
+  const { lang } = await params
+  const t = getDictionary(lang)
+  return {
+    title: t.contact.metaTitle,
+    description: t.contact.metaDescription,
+    alternates: alternatesFor(lang, '/contact'),
+  }
 }
 
 /**
@@ -24,7 +29,8 @@ export const metadata = {
  * instead needs a Suspense boundary whose fallback swap shifts the whole page
  * on load. Every query this page runs is cached, so the render is near-instant.
  */
-export default async function ContactPage({ searchParams }) {
+export default async function ContactPage({ params, searchParams }) {
+  const t = getDictionary((await params).lang)
   const { tip, din, obiecte } = await searchParams
   let initialEventType = serviceEventTypes[tip] ?? ''
   let initialMessage = ''
@@ -35,7 +41,7 @@ export default async function ContactPage({ searchParams }) {
     const items = await getRentalItemsBySlugs(obiecte.split(','))
     if (items.length > 0) {
       initialEventType ||= serviceEventTypes['chirie-decor']
-      initialMessage = `Aș vrea să închiriez:\n${items.map((item) => `• ${item.name}`).join('\n')}\n\n`
+      initialMessage = `${t.contact.rentalIntro}\n${items.map((item) => `• ${item.name}`).join('\n')}\n\n`
     }
   }
 
@@ -44,26 +50,26 @@ export default async function ContactPage({ searchParams }) {
       <Container className="pt-16 pb-12 md:pt-20 md:pb-16">
         <SectionHeading
           as="h1"
-          eyebrow="Contact"
-          title="Cere o ofertă"
-          description="Completează formularul sau sună-ne direct. Ne ajută mult dacă știi deja data, locația și numărul aproximativ de invitați."
+          eyebrow={t.contact.eyebrow}
+          title={t.contact.title}
+          description={t.contact.text}
         />
       </Container>
 
       <Container className="pb-24 md:pb-32">
         <div className="grid gap-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
           <div>
-            <h2 className="sr-only">Formular de contact</h2>
+            <h2 className="sr-only">{t.contact.formHeading}</h2>
             <ContactForm initialEventType={initialEventType} initialMessage={initialMessage} source={din} />
           </div>
 
           <div>
-            <ContactDetails />
+            <ContactDetails t={t} />
           </div>
         </div>
 
         <div className="mt-20 border-t border-line pt-16">
-          <FaqAccordion />
+          <FaqAccordion title={t.contact.faqTitle} items={t.content.faq} />
         </div>
       </Container>
 
@@ -74,7 +80,7 @@ export default async function ContactPage({ searchParams }) {
           className="inline-flex h-14 items-center justify-center gap-2 text-sm font-medium text-ink"
         >
           <Phone size={18} aria-hidden="true" />
-          Sună acum
+          {t.contact.call}
         </a>
         <a
           href={siteConfig.whatsappHref}
@@ -83,7 +89,7 @@ export default async function ContactPage({ searchParams }) {
           className="inline-flex h-14 items-center justify-center gap-2 border-l border-line bg-ink text-sm font-medium text-ivory"
         >
           <MessageCircle size={18} aria-hidden="true" />
-          WhatsApp
+          {t.contact.whatsapp}
         </a>
       </div>
       <div aria-hidden="true" className="h-14 md:hidden" />

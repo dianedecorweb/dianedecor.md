@@ -5,8 +5,9 @@ import Button from '@/components/ui/Button'
 import { siteConfig } from '@/lib/site-config'
 
 export default function CtaBand({
-  title = 'Spune-ne data și locația. Restul îl gândim noi.',
-  description = 'Îți răspundem în cel mult 24 de ore cu o propunere de concept și o ofertă pe zone.',
+  t,
+  title = t.home.ctaTitle,
+  description = t.home.ctaText,
   ctaHref = '/contact',
 }) {
   return (
@@ -21,7 +22,7 @@ export default function CtaBand({
 
         <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center">
           <Button href={ctaHref} variant="inverse">
-            Cere o ofertă
+            {t.layout.requestOffer}
           </Button>
           <a
             href={siteConfig.phoneHref}

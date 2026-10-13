@@ -4,7 +4,6 @@
  * rescrie adresele fără prefix spre /ro, fără să schimbe ce vede vizitatorul.
  */
 export const LOCALES = ['ro', 'ru']
-export const DEFAULT_LOCALE = 'ro'
 
 export function isLocale(value) {
   return LOCALES.includes(value)
@@ -17,14 +16,23 @@ export function localePath(lang, path = '/') {
   return clean === '/' ? '/ru' : `/ru${clean}`
 }
 
-/** Calea fără prefixul de limbă, ca să construiești aceeași pagină în cealaltă limbă. */
+/**
+ * Calea fără prefixul de limbă, ca să construiești aceeași pagină în cealaltă
+ * limbă. Tratează și /ro, forma internă a paginilor românești după rescriere.
+ */
 export function stripLocale(pathname = '/') {
-  if (pathname === '/ru') return '/'
-  if (pathname.startsWith('/ru/')) return pathname.slice(3)
-  return pathname
+  const match = /^\/(?:ro|ru)(\/.*)?$/.exec(pathname)
+  return match ? match[1] || '/' : pathname
 }
 
-/** Limba după adresa din browser, pentru componentele care nu primesc parametri. */
-export function localeFromPath(pathname = '/') {
-  return pathname === '/ru' || pathname.startsWith('/ru/') ? 'ru' : DEFAULT_LOCALE
+/** Canonicul și variantele hreflang ale unei pagini, pentru `metadata.alternates`. */
+export function alternatesFor(lang, path) {
+  return {
+    canonical: localePath(lang, path),
+    languages: {
+      ro: localePath('ro', path),
+      ru: localePath('ru', path),
+      'x-default': localePath('ro', path),
+    },
+  }
 }

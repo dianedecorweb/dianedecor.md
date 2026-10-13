@@ -8,6 +8,8 @@ import TestimonialsSlider from '@/components/home/TestimonialsSlider'
 import Section from '@/components/layout/Section'
 import SectionHeading from '@/components/layout/SectionHeading'
 import JsonLd, { localBusinessSchema } from '@/components/seo/JsonLd'
+import { getDictionary } from '@/i18n'
+import { alternatesFor } from '@/i18n/config'
 import {
   getBeforeAfterShowcase,
   getFeaturedProjects,
@@ -18,11 +20,13 @@ import {
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
 export const revalidate = 300
 
-export const metadata = {
-  alternates: { canonical: '/' },
+export async function generateMetadata({ params }) {
+  const { lang } = await params
+  return { alternates: alternatesFor(lang, '/') }
 }
 
-export default async function HomePage() {
+export default async function HomePage({ params }) {
+  const t = getDictionary((await params).lang)
   const [featuredProjects, services, testimonials, showcase] = await Promise.all([
     getFeaturedProjects(4),
     getServices(),
@@ -32,26 +36,26 @@ export default async function HomePage() {
 
   return (
     <>
-      <JsonLd data={localBusinessSchema()} />
+      <JsonLd data={localBusinessSchema(t)} />
 
-      <Hero />
-      <ServicesPreview services={services} />
-      <FeaturedProjects projects={featuredProjects} />
-      <BeforeAfterShowcase project={showcase} />
-      <ProcessSteps />
+      <Hero t={t} />
+      <ServicesPreview services={services} t={t} />
+      <FeaturedProjects projects={featuredProjects} t={t} />
+      <BeforeAfterShowcase project={showcase} t={t} />
+      <ProcessSteps t={t} />
 
       {testimonials.length > 0 ? (
         <Section labelledBy="testimonials-title" className="border-t border-line">
           <SectionHeading
             id="testimonials-title"
-            eyebrow="Recenzii"
-            title="Ce spun cei cu care am lucrat"
+            eyebrow={t.home.testimonialsEyebrow}
+            title={t.home.testimonialsTitle}
           />
           <TestimonialsSlider testimonials={testimonials} />
         </Section>
       ) : null}
 
-      <CtaBand />
+      <CtaBand t={t} />
     </>
   )
 }

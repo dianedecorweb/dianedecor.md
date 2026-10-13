@@ -1,23 +1,23 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 
 import Section from '@/components/layout/Section'
 import SectionHeading from '@/components/layout/SectionHeading'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
+import { Link } from '@/i18n/client'
 
 /** Four equal square tiles, matching the cards on /portofoliu. */
-export default function FeaturedProjects({ projects }) {
+export default function FeaturedProjects({ projects, t }) {
   if (projects.length === 0) return null
 
   return (
     <Section labelledBy="featured-title" className="border-t border-line" reveal>
       <SectionHeading
         id="featured-title"
-        eyebrow="Portofoliu"
-        title="Evenimente recente"
-        description="Patru proiecte care arată cum lucrăm: o paletă clară, materiale care rezistă și decor gândit pentru sala respectivă."
+        eyebrow={t.home.featuredEyebrow}
+        title={t.home.featuredTitle}
+        description={t.home.featuredText}
       />
 
       <ul className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
@@ -28,7 +28,7 @@ export default function FeaturedProjects({ projects }) {
                 <div className="relative aspect-square w-full overflow-hidden bg-line">
                   <Image
                     src={project.coverImage}
-                    alt={`Decor pentru ${project.title}${project.location ? `, ${project.location}` : ''}`}
+                    alt={t.common.projectPhotoAlt(project.title, project.location)}
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     quality={85}
@@ -58,7 +58,7 @@ export default function FeaturedProjects({ projects }) {
 
       <div className="mt-10">
         <Button href="/portofoliu" variant="ghost">
-          Vezi tot portofoliul
+          {t.home.featuredAll}
         </Button>
       </div>
     </Section>

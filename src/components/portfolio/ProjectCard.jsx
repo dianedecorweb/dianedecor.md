@@ -1,14 +1,14 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { MapPin } from 'lucide-react'
 
 import Badge from '@/components/ui/Badge'
+import { Link } from '@/i18n/client'
 import { formatEventDate, toIsoDate } from '@/lib/format'
 
 const CARD_SIZES = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
 
-export default function ProjectCard({ project, priority = false, eager = false, sizes = CARD_SIZES }) {
-  const eventDate = formatEventDate(project.eventDate)
+export default function ProjectCard({ project, t, priority = false, eager = false, sizes = CARD_SIZES }) {
+  const eventDate = formatEventDate(project.eventDate, t.lang)
 
   return (
     <article className="group border border-line bg-paper transition-colors duration-200 ease-out hover:border-muted/60">
@@ -16,7 +16,7 @@ export default function ProjectCard({ project, priority = false, eager = false, 
         <div className="relative aspect-square overflow-hidden bg-line">
           <Image
             src={project.coverImage}
-            alt={`Decor pentru ${project.title}${project.location ? `, ${project.location}` : ''}`}
+            alt={t.common.projectPhotoAlt(project.title, project.location)}
             fill
             sizes={sizes}
             quality={85}

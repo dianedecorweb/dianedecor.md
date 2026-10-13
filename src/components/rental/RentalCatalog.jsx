@@ -1,10 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import { Check, Plus, Send, X } from 'lucide-react'
 import { useState, useSyncExternalStore } from 'react'
 
+import { Link, useDictionary } from '@/i18n/client'
 import { formatPriceFrom } from '@/lib/format'
 import {
   MAX_SELECTED,
@@ -17,13 +17,12 @@ import {
 } from '@/lib/rental-selection'
 import { cn } from '@/lib/utils'
 
-const UNIT_SUFFIX = { zi: '/ zi', eveniment: '/ eveniment', bucata: '/ bucată' }
-
 /**
  * Grila catalogului și bara de jos cu ce s-a ales. Bara duce la formularul de
  * contact cu lista deja scrisă, ca vizitatorul să nu o mai copieze de mână.
  */
 export default function RentalCatalog({ items }) {
+  const { lang, common, rental: t } = useDictionary()
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
   const [limitHit, setLimitHit] = useState(false)
 
@@ -55,8 +54,8 @@ export default function RentalCatalog({ items }) {
               <h2 className="mt-4 text-xl">{item.name}</h2>
               <p className="mt-1 text-sm text-ink-soft">
                 {item.priceFrom !== null && item.priceFrom !== undefined
-                  ? `${formatPriceFrom(item.priceFrom)} ${UNIT_SUFFIX[item.priceUnit] ?? ''}`
-                  : 'Preț la cerere'}
+                  ? `${formatPriceFrom(item.priceFrom, lang)} ${t.units[item.priceUnit] ?? ''}`
+                  : common.priceOnRequest}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-muted">{item.description}</p>
               <button
@@ -71,7 +70,7 @@ export default function RentalCatalog({ items }) {
                 )}
               >
                 {isSelected ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
-                {isSelected ? 'Adăugat la cerere' : 'Adaugă la cerere'}
+                {isSelected ? t.added : t.add}
               </button>
             </li>
           )
@@ -84,17 +83,17 @@ export default function RentalCatalog({ items }) {
           <div aria-hidden="true" className="h-24" />
           <div
             role="region"
-            aria-label="Obiecte alese"
+            aria-label={t.selectedRegion}
             className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 shadow-[0_-8px_24px_-16px_rgba(30,27,24,0.35)] backdrop-blur-sm"
           >
             <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-5 py-3 md:px-8">
               <p className="min-w-0 flex-1 text-sm text-ink" aria-live="polite">
                 <strong className="font-medium">
-                  {selected.length} {selected.length === 1 ? 'obiect ales' : 'obiecte alese'}
+                  {t.selected(selected.length)}
                 </strong>
                 {limitHit ? (
                   <span className="block text-xs text-accent-deep">
-                    Cel mult {MAX_SELECTED} într-o cerere. Pentru mai multe, scrie-ne direct.
+                    {t.limit(MAX_SELECTED)}
                   </span>
                 ) : null}
               </p>
@@ -107,14 +106,14 @@ export default function RentalCatalog({ items }) {
                 className="inline-flex h-11 items-center gap-1.5 px-2 text-sm text-muted hover:text-ink"
               >
                 <X size={15} aria-hidden="true" />
-                Golește
+                {t.clear}
               </button>
               <Link
                 href={offerHref}
                 className="inline-flex h-11 items-center gap-2 rounded-[3px] bg-ink px-5 text-sm font-medium text-ivory transition-colors duration-200 ease-out hover:bg-accent-deep"
               >
                 <Send size={15} aria-hidden="true" />
-                Cere ofertă pentru ele
+                {t.request}
               </Link>
             </div>
           </div>

@@ -1,16 +1,15 @@
-import Link from 'next/link'
-
+import { Link } from '@/i18n/client'
 import { cn } from '@/lib/utils'
 
 /**
  * Plain links, not client state: the filter lives in the URL, survives a hard
  * refresh, is shareable, and works with JavaScript disabled.
  */
-export default function CategoryFilter({ categories, activeSlug }) {
-  const options = [{ name: 'Toate', slug: null }, ...categories]
+export default function CategoryFilter({ categories, activeSlug, t }) {
+  const options = [{ name: t.common.all, slug: null }, ...categories]
 
   return (
-    <nav aria-label="Filtrează după tipul evenimentului">
+    <nav aria-label={t.portfolio.filterAria}>
       <ul className="-mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-1 md:mx-0 md:flex-wrap md:px-0">
         {options.map((option) => {
           const isActive = (option.slug ?? null) === (activeSlug ?? null)

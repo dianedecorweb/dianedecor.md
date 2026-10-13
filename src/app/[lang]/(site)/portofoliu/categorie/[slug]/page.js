@@ -7,6 +7,8 @@ import SectionHeading from '@/components/layout/SectionHeading'
 import CategoryFilter from '@/components/portfolio/CategoryFilter'
 import ProjectGrid from '@/components/portfolio/ProjectGrid'
 import EmptyState from '@/components/ui/EmptyState'
+import { getDictionary } from '@/i18n'
+import { alternatesFor } from '@/i18n/config'
 import { getCategories, getProjectsByCategory } from '@/lib/queries'
 import { truncate } from '@/lib/utils'
 
@@ -25,23 +27,25 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params
+  const { lang, slug } = await params
+  const t = getDictionary(lang)
   const categories = await getCategories()
   const category = categories.find((entry) => entry.slug === slug)
 
-  if (!category) return { title: 'Categorie indisponibilă' }
+  if (!category) return { title: t.portfolio.categoryUnavailable }
 
   return {
     // Prefixul ține titlul unic: unele categorii poartă același nume ca un
     // serviciu („Cerere în căsătorie"), iar Google vedea două pagini identice.
-    title: `Portofoliu: ${category.name}`,
+    title: t.portfolio.categoryMetaTitle(category.name),
     description: truncate(category.description, 160),
-    alternates: { canonical: `/portofoliu/categorie/${category.slug}` },
+    alternates: alternatesFor(lang, `/portofoliu/categorie/${category.slug}`),
   }
 }
 
 export default async function PortfolioCategoryPage({ params }) {
-  const { slug } = await params
+  const { lang, slug } = await params
+  const t = getDictionary(lang)
   const [categories, projects] = await Promise.all([
     getCategories(),
     getProjectsByCategory(slug),
@@ -55,33 +59,35 @@ export default async function PortfolioCategoryPage({ params }) {
       <Container className="pt-16 pb-12 md:pt-20 md:pb-16">
         <SectionHeading
           as="h1"
-          eyebrow="Portofoliu"
+          eyebrow={t.portfolio.eyebrow}
           title={category.name}
           description={category.description}
         />
 
         <div className="mt-10 border-y border-line py-5">
-          <CategoryFilter categories={categories} activeSlug={slug} />
+          <CategoryFilter categories={categories} activeSlug={slug} t={t} />
         </div>
 
         <div className="mt-10 md:mt-14">
-          <h2 className="sr-only">Proiecte din categoria {category.name}</h2>
+          <h2 className="sr-only">
+            {t.portfolio.categoryProjects} {category.name}
+          </h2>
 
           {projects.length > 0 ? (
-            <ProjectGrid projects={projects} />
+            <ProjectGrid projects={projects} t={t} />
           ) : (
             <EmptyState
               icon={ImageOff}
-              title="Momentan nu avem proiecte publicate în această categorie."
-              description="Adăugăm proiecte noi după fiecare sezon. Între timp, poți vedea restul lucrărilor noastre."
-              actionLabel="Vezi toate proiectele"
+              title={t.portfolio.emptyTitle}
+              description={t.portfolio.emptyText}
+              actionLabel={t.portfolio.emptyAction}
               actionHref="/portofoliu"
             />
           )}
         </div>
       </Container>
 
-      <CtaBand />
+      <CtaBand t={t} />
     </>
   )
 }

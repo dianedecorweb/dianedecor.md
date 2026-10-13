@@ -123,6 +123,11 @@ export default function MessageRow({ message, today }) {
             >
               {STATUS_LABELS[status]}
             </span>
+            {message.locale === 'ru' ? (
+              <span className="inline-flex items-center rounded-full bg-ivory px-2.5 py-0.5 text-xs text-ink-soft">
+                în rusă
+              </span>
+            ) : null}
             {message.source && message.source !== 'site' ? (
               <span className="text-xs text-muted">{SOURCE_LABELS[message.source]}</span>
             ) : null}

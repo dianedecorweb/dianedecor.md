@@ -3,6 +3,8 @@
 import { Plus, Quote } from 'lucide-react'
 import { useState } from 'react'
 
+import { useDictionary } from '@/i18n/client'
+
 const PAGE_SIZE = 3
 
 /**
@@ -11,6 +13,7 @@ const PAGE_SIZE = 3
  * nothing is hidden behind an arrow the visitor has to discover.
  */
 export default function TestimonialsSlider({ testimonials }) {
+  const { testimonials: t } = useDictionary()
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   if (testimonials.length === 0) return null
@@ -54,11 +57,11 @@ export default function TestimonialsSlider({ testimonials }) {
             className="inline-flex h-12 items-center gap-2 rounded-[3px] border border-ink px-7 text-sm font-medium tracking-[0.02em] text-ink transition-colors duration-200 ease-out hover:bg-ink hover:text-ivory"
           >
             <Plus size={16} aria-hidden="true" />
-            Afișează mai multe
+            {t.more}
           </button>
 
           <p aria-live="polite" className="mt-3 text-sm text-muted">
-            {visible.length} din {testimonials.length} recenzii
+            {t.counter(visible.length, testimonials.length)}
           </p>
         </div>
       ) : null}

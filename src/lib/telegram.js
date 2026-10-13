@@ -74,6 +74,7 @@ export function formatMessage(message, status = 'NEW') {
       : null,
     message.location ? `📍 <b>Locație:</b> ${escapeHtml(message.location)}` : null,
     message.guestCount ? `👥 <b>Invitați:</b> ${message.guestCount}` : null,
+    message.locale === 'ru' ? '🌐 <b>Limba:</b> rusă — răspunde în rusă' : null,
     '',
     `💬 ${escapeHtml(message.message)}`,
     '',

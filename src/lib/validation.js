@@ -90,6 +90,9 @@ export const contactSchema = z
       z.enum(REQUEST_SOURCES)
     ),
 
+    // Limba paginii de pe care s-a trimis, ca studioul să știe în ce limbă răspunde.
+    locale: z.preprocess((value) => (value === 'ru' ? 'ru' : 'ro'), z.enum(['ro', 'ru'])),
+
     message: z
       .string({ error: 'Scrie câteva detalii despre eveniment.' })
       .trim()

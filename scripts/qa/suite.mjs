@@ -367,6 +367,39 @@ for (const pathname of pages) {
   check('filtrul vechi din URL redirecționează', response.status === 308, `${response.status}`)
 }
 
+// ─────────────────────────────────────────────── 6. versiunea în rusă
+setGroup('Versiunea în rusă')
+
+for (const pathname of pages.filter((path) => !path.includes('.'))) {
+  const ruPath = pathname === '/' ? '/ru' : `/ru${pathname}`
+  const response = await fetch(`${BASE}${ruPath}`)
+  const html = await response.text()
+  check(`${ruPath}`, response.ok && html.includes('<html lang="ru"'), `${response.status}`)
+}
+
+{
+  const html = await (await fetch(`${BASE}/ru/servicii`)).text()
+  check('/ru/servicii: canonic spre /ru/servicii', /<link rel="canonical" href="[^"]*\/ru\/servicii"/.test(html))
+  check('/ru/servicii: hreflang spre varianta românească', /hrefLang="ro" href="[^"]*\/servicii"/.test(html))
+  check('/ru/servicii: linkurile din meniu rămân în rusă', html.includes('href="/ru/portofoliu"'))
+
+  const roHtml = await (await fetch(`${BASE}/servicii`)).text()
+  check('/servicii: html lang="ro"', roHtml.includes('<html lang="ro"'))
+}
+
+{
+  const response = await fetch(`${BASE}/ro/servicii`, { redirect: 'manual' })
+  check('/ro/servicii → /servicii', response.status === 308 && response.headers.get('location')?.endsWith('/servicii'), `${response.status}`)
+}
+
+{
+  // Mesajele de validare vin din schema românească; pe /ru se înlocuiesc după text.
+  const schema = fs.readFileSync(new URL('../../src/lib/validation.js', import.meta.url), 'utf8')
+  const ru = fs.readFileSync(new URL('../../src/i18n/ru.client.js', import.meta.url), 'utf8')
+  const missing = [...schema.matchAll(/'([^']+\.)'/g)].map((m) => m[1]).filter((message) => !ru.includes(`'${message}'`))
+  check('fiecare mesaj de validare are traducere rusă', missing.length === 0, missing.join(' | '))
+}
+
 setGroup('Antete de securitate')
 
 {

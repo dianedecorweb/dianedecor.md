@@ -35,6 +35,13 @@
   --breakpoint-xs: 25rem;
 }
 
+/* Pe paginile rusești, fișierele cu chirilică stau primele: dau literele
+   rusești, iar cifrele și literele latine cad pe fonturile de mai sus. */
+:root:lang(ru) {
+  --font-display: var(--font-cormorant-cyr), var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter-cyr), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;

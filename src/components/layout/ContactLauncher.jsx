@@ -1,11 +1,11 @@
 'use client'
 
 import { MessageCircle, X } from 'lucide-react'
-import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import ChannelLink from '@/components/contact/ChannelLink'
 import { contactChannels } from '@/components/contact/contactChannels'
+import { useDictionary, usePagePath } from '@/i18n/client'
 
 /**
  * Floating "Contactele noastre" button. Opens the same three channels as the
@@ -15,7 +15,8 @@ import { contactChannels } from '@/components/contact/contactChannels'
  * page has its own fixed call / WhatsApp bar, which this button would sit on.
  */
 export default function ContactLauncher() {
-  const pathname = usePathname()
+  const { channels } = useDictionary()
+  const pathname = usePagePath()
   const [isOpen, setIsOpen] = useState(false)
   const rootRef = useRef(null)
   const toggleRef = useRef(null)
@@ -55,15 +56,15 @@ export default function ContactLauncher() {
         <div
           id="contact-launcher-panel"
           role="dialog"
-          aria-label="Contactele noastre"
+          aria-label={channels.title}
           className="w-[min(20rem,calc(100vw-2rem))] rounded-md border border-line bg-paper p-3 shadow-[0_12px_32px_-12px_rgba(30,27,24,0.28)] motion-safe:animate-[launcher-in_180ms_ease-out]"
         >
           <p className="px-1 pt-1 pb-3 text-xs tracking-[0.14em] text-muted uppercase">
-            Contactele noastre
+            {channels.title}
           </p>
 
           <ul className="flex flex-col gap-2">
-            {contactChannels.map((channel) => {
+            {contactChannels(channels).map((channel) => {
               const Icon = channel.icon
               return (
                 <li key={channel.key}>
@@ -99,7 +100,7 @@ export default function ContactLauncher() {
         ) : (
           <MessageCircle size={18} aria-hidden="true" />
         )}
-        {isOpen ? 'Închide' : 'Contactele noastre'}
+        {isOpen ? channels.close : channels.title}
       </button>
     </div>
   )

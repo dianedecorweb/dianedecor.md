@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
 
 import ScrollState from '@/components/layout/ScrollState'
-import { fontClasses } from '@/app/fonts'
+import { fontClasses, fontClassesRu } from '@/app/fonts'
+import { getDictionary } from '@/i18n'
+import { LocaleProvider } from '@/i18n/client'
 import { LOCALES, isLocale } from '@/i18n/config'
 import { getSiteUrl, siteConfig } from '@/lib/site-config'
 
@@ -16,23 +18,9 @@ export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }))
 }
 
-const META = {
-  ro: {
-    title: `${siteConfig.name} — ${siteConfig.tagline} în Republica Moldova`,
-    description: siteConfig.description,
-    locale: 'ro_MD',
-  },
-  ru: {
-    title: `${siteConfig.name} — студия декора мероприятий в Молдове`,
-    description:
-      'Студия декора мероприятий в Республике Молдова. Свадьбы, крестины, предложения руки и сердца, дни рождения, выездные церемонии, гелиевые шары и аренда декора.',
-    locale: 'ru_MD',
-  },
-}
-
 export async function generateMetadata({ params }) {
   const { lang } = await params
-  const meta = META[lang] ?? META.ro
+  const { meta } = getDictionary(lang)
 
   return {
     metadataBase: new URL(getSiteUrl()),
@@ -75,10 +63,12 @@ export default async function LocaleRootLayout({ children, params }) {
   if (!isLocale(lang)) notFound()
 
   return (
-    <html lang={lang} className={fontClasses}>
+    <html lang={lang} className={lang === 'ru' ? fontClassesRu : fontClasses}>
       <body>
-        <ScrollState />
-        {children}
+        <LocaleProvider lang={lang}>
+          <ScrollState />
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   )

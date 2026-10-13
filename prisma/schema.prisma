@@ -104,6 +104,9 @@ model ContactMessage {
   // (butonul flotant), „chirie" (catalogul de chirie) sau „site".
   source String?
 
+  // Limba paginii: „ru" pentru cererile de pe /ru, „ro" sau gol pentru restul.
+  locale String?
+
   // Doar pentru studio, nu se văd nicăieri pe site.
   note       String?
   followUpAt DateTime?

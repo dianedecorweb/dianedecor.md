@@ -99,6 +99,7 @@ export async function POST(request) {
     location: result.data.location ? sanitizeText(result.data.location, 120) : null,
     guestCount: result.data.guestCount ?? null,
     source: result.data.source,
+    locale: result.data.locale,
     message: rapidSubmit
       ? `${RAPID_SUBMIT_MARKER}${sanitizeText(result.data.message, 1000)}`
       : sanitizeText(result.data.message, 1000),

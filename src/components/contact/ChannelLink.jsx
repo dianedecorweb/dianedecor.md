@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/client'
 
 /**
  * Trimite contorului o apăsare pe telefon sau Instagram. `sendBeacon` pleacă

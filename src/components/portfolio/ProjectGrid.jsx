@@ -14,13 +14,14 @@ import ProjectCard from '@/components/portfolio/ProjectCard'
  */
 const EAGER_COUNT = 4
 
-export default function ProjectGrid({ projects, priorityCount = 1 }) {
+export default function ProjectGrid({ projects, t, priorityCount = 1 }) {
   return (
     <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
       {projects.map((project, index) => (
         <li key={project.slug}>
           <ProjectCard
             project={project}
+            t={t}
             priority={index < priorityCount}
             eager={index < EAGER_COUNT}
           />

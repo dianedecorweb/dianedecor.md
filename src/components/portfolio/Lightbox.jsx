@@ -4,12 +4,15 @@ import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useDictionary } from '@/i18n/client'
+
 /**
  * Gallery grid plus the full-screen overlay it opens. Kept together because the
  * thumbnails are the overlay's triggers — splitting them would mean lifting the
  * open index into a second client component for no gain.
  */
 export default function Lightbox({ images, projectTitle }) {
+  const { lightbox: t } = useDictionary()
   const [openIndex, setOpenIndex] = useState(null)
   const triggersRef = useRef([])
   const overlayRef = useRef(null)
@@ -89,12 +92,12 @@ export default function Lightbox({ images, projectTitle }) {
                 triggersRef.current[index] = node
               }}
               onClick={() => setOpenIndex(index)}
-              aria-label={`Deschide imaginea ${index + 1} din ${images.length}`}
+              aria-label={t.open(index + 1, images.length)}
               className="group relative block aspect-square w-full overflow-hidden bg-line"
             >
               <Image
                 src={image}
-                alt={`${projectTitle} — imaginea ${index + 1}`}
+                alt={t.image(projectTitle, index + 1)}
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                 quality={85}
@@ -110,7 +113,7 @@ export default function Lightbox({ images, projectTitle }) {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          aria-label={`Galerie — ${projectTitle}`}
+          aria-label={t.gallery(projectTitle)}
           className="fixed inset-0 z-[80] flex flex-col bg-ink/95"
         >
           <div className="flex items-center justify-between px-4 py-4 text-ivory md:px-8">
@@ -121,7 +124,7 @@ export default function Lightbox({ images, projectTitle }) {
               ref={closeButtonRef}
               type="button"
               onClick={close}
-              aria-label="Închide galeria"
+              aria-label={t.close}
               className="inline-flex h-11 w-11 items-center justify-center"
             >
               <X size={24} strokeWidth={1.5} aria-hidden="true" />
@@ -131,7 +134,7 @@ export default function Lightbox({ images, projectTitle }) {
           <div className="relative flex flex-1 items-center justify-center px-2 pb-4 md:px-16">
             <button
               type="button"
-              aria-label="Închide galeria"
+              aria-label={t.close}
               tabIndex={-1}
               onClick={close}
               className="absolute inset-0 h-full w-full cursor-default"
@@ -140,7 +143,7 @@ export default function Lightbox({ images, projectTitle }) {
             <div className="relative h-full w-full max-w-5xl">
               <Image
                 src={images[openIndex]}
-                alt={`${projectTitle} — imaginea ${openIndex + 1}`}
+                alt={t.image(projectTitle, openIndex + 1)}
                 fill
                 sizes="100vw"
                 quality={85}
@@ -151,7 +154,7 @@ export default function Lightbox({ images, projectTitle }) {
             <button
               type="button"
               onClick={() => step(-1)}
-              aria-label="Imaginea anterioară"
+              aria-label={t.previous}
               className="absolute top-1/2 left-2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-ivory/40 text-ivory transition-colors duration-200 ease-out hover:bg-ivory hover:text-ink md:left-4"
             >
               <ChevronLeft size={22} aria-hidden="true" />
@@ -159,7 +162,7 @@ export default function Lightbox({ images, projectTitle }) {
             <button
               type="button"
               onClick={() => step(1)}
-              aria-label="Imaginea următoare"
+              aria-label={t.next}
               className="absolute top-1/2 right-2 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center border border-ivory/40 text-ivory transition-colors duration-200 ease-out hover:bg-ivory hover:text-ink md:right-4"
             >
               <ChevronRight size={22} aria-hidden="true" />

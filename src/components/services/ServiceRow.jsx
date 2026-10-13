@@ -7,15 +7,15 @@ import Icon from '@/components/ui/Icon'
 import { cn } from '@/lib/utils'
 
 /** Alternating image/text row on /servicii. Stacks to a single column on mobile. */
-export default function ServiceRow({ service, reversed = false, priority = false }) {
-  const priceFrom = formatPriceFrom(service.priceFrom)
+export default function ServiceRow({ service, t, reversed = false, priority = false }) {
+  const priceFrom = formatPriceFrom(service.priceFrom, t.lang)
 
   return (
     <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
       <div className={cn('relative aspect-3/2 overflow-hidden bg-line', reversed && 'lg:order-2')}>
         <Image
           src={service.coverImage}
-          alt={`Exemplu de ${service.title.toLowerCase()} realizat de DianeDecor`}
+          alt={t.common.servicePhotoAlt(service.title)}
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
           quality={85}
@@ -43,7 +43,7 @@ export default function ServiceRow({ service, reversed = false, priority = false
 
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 pt-1">
           <Button href={`/servicii/${service.slug}`} variant="ghost">
-            Vezi detalii
+            {t.common.seeDetails}
           </Button>
           {priceFrom ? <span className="text-sm whitespace-nowrap text-muted">{priceFrom}</span> : null}
         </div>

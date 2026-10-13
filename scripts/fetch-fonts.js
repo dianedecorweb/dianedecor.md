@@ -29,21 +29,37 @@ const GLYPHS = [
   '·•…©®°',
 ].join('')
 
+/**
+ * Only the Russian letters and the punctuation Russian typography adds. These
+ * files sit first in the font stack on /ru pages: Cyrillic comes from them,
+ * digits and Latin characters from the files above. Romanian pages never ask
+ * for a Cyrillic glyph, so the browser never downloads these there.
+ */
+const CYRILLIC = [
+  'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ',
+  'абвгдеёжзийклмнопрстуфхцчшщъыьэюя',
+  '«»№',
+].join('')
+
 const FONTS = [
   { family: 'Cormorant Garamond', weight: 400, file: 'cormorant-400.woff2' },
   { family: 'Cormorant Garamond', weight: 600, file: 'cormorant-600.woff2' },
   { family: 'Inter', weight: 400, file: 'inter-400.woff2' },
   { family: 'Inter', weight: 500, file: 'inter-500.woff2' },
+  { family: 'Cormorant Garamond', weight: 400, file: 'cormorant-400-cyr.woff2', glyphs: CYRILLIC },
+  { family: 'Cormorant Garamond', weight: 600, file: 'cormorant-600-cyr.woff2', glyphs: CYRILLIC },
+  { family: 'Inter', weight: 400, file: 'inter-400-cyr.woff2', glyphs: CYRILLIC },
+  { family: 'Inter', weight: 500, file: 'inter-500-cyr.woff2', glyphs: CYRILLIC },
 ]
 
 // A modern UA is required, otherwise Google serves TTF instead of WOFF2.
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
 
-async function fetchSubset({ family, weight, file }) {
+async function fetchSubset({ family, weight, file, glyphs = GLYPHS }) {
   const url =
     `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}` +
-    `&text=${encodeURIComponent(GLYPHS)}&display=swap`
+    `&text=${encodeURIComponent(glyphs)}&display=swap`
 
   const cssResponse = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
   if (!cssResponse.ok) throw new Error(`${family} ${weight}: CSS request failed (${cssResponse.status})`)

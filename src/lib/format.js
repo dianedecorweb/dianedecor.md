@@ -1,9 +1,9 @@
-const dateFormatter = new Intl.DateTimeFormat('ro-MD', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'Europe/Chisinau',
-})
+const EVENT_DATE = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Chisinau' }
+
+const dateFormatters = {
+  ro: new Intl.DateTimeFormat('ro-MD', EVENT_DATE),
+  ru: new Intl.DateTimeFormat('ru-RU', EVENT_DATE),
+}
 
 const dateTimeFormatter = new Intl.DateTimeFormat('ro-MD', {
   day: '2-digit',
@@ -15,12 +15,15 @@ const dateTimeFormatter = new Intl.DateTimeFormat('ro-MD', {
 })
 
 // 'MDL' spelled out: the ro-MD currency symbol renders as a bare 'L', which reads badly.
-const priceFormatter = new Intl.NumberFormat('ro-MD', { maximumFractionDigits: 0 })
+const prices = {
+  ro: { from: 'de la', formatter: new Intl.NumberFormat('ro-MD', { maximumFractionDigits: 0 }) },
+  ru: { from: 'от', formatter: new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }) },
+}
 
-/** "14 iunie 2025" — used for event dates across the portfolio. */
-export function formatEventDate(value) {
+/** "14 iunie 2025" / "14 июня 2025 г." — used for event dates across the portfolio. */
+export function formatEventDate(value, lang = 'ro') {
   if (!value) return null
-  return dateFormatter.format(new Date(value))
+  return (dateFormatters[lang] ?? dateFormatters.ro).format(new Date(value))
 }
 
 /** "24.08.2026, 17:30" — used in the admin inbox. */
@@ -29,10 +32,11 @@ export function formatDateTime(value) {
   return dateTimeFormatter.format(new Date(value))
 }
 
-/** "de la 15.000 MDL" — services quote a starting price, not a fixed one. */
-export function formatPriceFrom(value) {
+/** "de la 15.000 MDL" / "от 15 000 MDL" — services quote a starting price, not a fixed one. */
+export function formatPriceFrom(value, lang = 'ro') {
   if (value === null || value === undefined) return null
-  return `de la ${priceFormatter.format(value)} MDL`
+  const { from, formatter } = prices[lang] ?? prices.ro
+  return `${from} ${formatter.format(value)} MDL`
 }
 
 /** Value for a <time datetime> attribute. */

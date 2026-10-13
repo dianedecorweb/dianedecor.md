@@ -18,13 +18,13 @@ function DetailRow({ icon: Icon, label, children }) {
   )
 }
 
-export default function ContactDetails() {
+export default function ContactDetails({ t }) {
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-2xl">Date de contact</h2>
+      <h2 className="text-2xl">{t.contact.detailsTitle}</h2>
 
       <ul className="flex flex-col border-t border-line">
-        <DetailRow icon={Phone} label="Telefon">
+        <DetailRow icon={Phone} label={t.contact.phone}>
           <a href={siteConfig.phoneHref} className="inline-flex min-h-11 items-center hover:text-accent-deep">
             {siteConfig.phone}
           </a>
@@ -37,11 +37,11 @@ export default function ContactDetails() {
             rel="noreferrer"
             className="inline-flex min-h-11 items-center hover:text-accent-deep"
           >
-            Scrie-ne pe WhatsApp
+            {t.contact.whatsappText}
           </a>
         </DetailRow>
 
-        <DetailRow icon={Mail} label="Email">
+        <DetailRow icon={Mail} label={t.contact.email}>
           <a
             href={siteConfig.emailHref}
             className="inline-flex min-h-11 items-center hover:text-accent-deep"
@@ -49,8 +49,6 @@ export default function ContactDetails() {
             {siteConfig.email}
           </a>
         </DetailRow>
-
-
 
         <DetailRow icon={InstagramIcon} label="Instagram">
           <a
@@ -74,12 +72,12 @@ export default function ContactDetails() {
           </a>
         </DetailRow>
 
-        <DetailRow icon={MapPin} label="Zonă de lucru">
-          {siteConfig.serviceArea}
+        <DetailRow icon={MapPin} label={t.contact.area}>
+          {t.footer.serviceArea}
         </DetailRow>
 
-        <DetailRow icon={Clock} label="Program">
-          {siteConfig.workingHours}
+        <DetailRow icon={Clock} label={t.contact.hours}>
+          {t.footer.workingHours}
         </DetailRow>
       </ul>
     </div>

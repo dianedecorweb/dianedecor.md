@@ -1,21 +1,21 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Menu, Phone, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { useEffect, useRef, useState } from 'react'
 
 import { FacebookIcon, InstagramIcon } from '@/components/brand/SocialIcons'
 import Button from '@/components/ui/Button'
-import { navigation, siteConfig } from '@/lib/site-config'
+import { Link, useDictionary, usePagePath } from '@/i18n/client'
+import { siteConfig } from '@/lib/site-config'
 import { cn } from '@/lib/utils'
 
 const FOCUSABLE = 'a[href], button:not([disabled])'
 
 export default function MobileNav() {
+  const { nav, layout } = useDictionary()
   const [isOpen, setIsOpen] = useState(false)
-  const pathname = usePathname()
+  const pathname = usePagePath()
   const panelRef = useRef(null)
   const triggerRef = useRef(null)
 
@@ -84,7 +84,7 @@ export default function MobileNav() {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Meniu"
+      aria-label={layout.menu}
       className="fixed inset-0 z-[60] lg:hidden"
     >
       <div
@@ -96,16 +96,16 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            aria-label="Închide meniul"
+            aria-label={layout.closeMenu}
             className="-mr-2 inline-flex h-11 w-11 items-center justify-center text-ink"
           >
             <X size={24} strokeWidth={1.5} aria-hidden="true" />
           </button>
         </div>
 
-        <nav aria-label="Navigare principală" className="mt-6 flex-1">
+        <nav aria-label={layout.mainNav} className="mt-6 flex-1">
           <ul className="flex flex-col gap-1">
-            {navigation.map((item) => {
+            {nav.map((item) => {
               const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
 
               return (
@@ -129,7 +129,7 @@ export default function MobileNav() {
 
         <div className="flex flex-col gap-5 border-t border-line pt-6">
           <Button href="/contact" variant="primary" fullWidth onClick={() => setIsOpen(false)}>
-            Cere o ofertă
+            {layout.requestOffer}
           </Button>
 
           <a
@@ -173,7 +173,7 @@ export default function MobileNav() {
         type="button"
         onClick={() => setIsOpen(true)}
         aria-expanded={isOpen}
-        aria-label="Deschide meniul"
+        aria-label={layout.openMenu}
         className="-mr-2 inline-flex h-11 w-11 items-center justify-center lg:hidden"
       >
         <Menu size={24} strokeWidth={1.5} aria-hidden="true" />

@@ -1,9 +1,9 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/client'
 
 /** `items` is ordered from the homepage down; the last entry is the current page. */
-export default function Breadcrumbs({ items }) {
+export default function Breadcrumbs({ items, label }) {
   return (
-    <nav aria-label="Firimituri" className="text-xs tracking-[0.14em] text-muted uppercase">
+    <nav aria-label={label} className="text-xs tracking-[0.14em] text-muted uppercase">
       <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
         {items.map((item, index) => {
           const isLast = index === items.length - 1

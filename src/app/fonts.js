@@ -29,3 +29,37 @@ export const inter = localFont({
 
 /** Clasele care pun variabilele de font pe <html>. */
 export const fontClasses = `${cormorant.variable} ${inter.variable}`
+
+/**
+ * Doar literele rusești. Pe paginile /ru stau primele în lista de fonturi
+ * (vezi `:lang(ru)` în globals.css): chirilica vine de aici, cifrele și literele
+ * latine din fișierele de mai sus. Fără fonturi de rezervă proprii, altfel un
+ * Times New Roman local ar prinde literele latine înaintea Cormorantului.
+ * Nepreîncărcate: o pagină românească nu le cere niciodată.
+ */
+export const cormorantCyrillic = localFont({
+  src: [
+    { path: '../fonts/cormorant-400-cyr.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/cormorant-600-cyr.woff2', weight: '600', style: 'normal' },
+  ],
+  variable: '--font-cormorant-cyr',
+  display: 'swap',
+  preload: false,
+  adjustFontFallback: false,
+  fallback: [],
+})
+
+export const interCyrillic = localFont({
+  src: [
+    { path: '../fonts/inter-400-cyr.woff2', weight: '400', style: 'normal' },
+    { path: '../fonts/inter-500-cyr.woff2', weight: '500', style: 'normal' },
+  ],
+  variable: '--font-inter-cyr',
+  display: 'swap',
+  preload: false,
+  adjustFontFallback: false,
+  fallback: [],
+})
+
+/** Pentru paginile rusești: și variabilele chirilice. */
+export const fontClassesRu = `${fontClasses} ${cormorantCyrillic.variable} ${interCyrillic.variable}`
