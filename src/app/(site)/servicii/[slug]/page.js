@@ -37,7 +37,16 @@ export async function generateMetadata({ params }) {
       title: service.title,
       description: truncate(service.shortDescription, 160),
       url: `/servicii/${service.slug}`,
-      images: [{ url: service.coverImage, alt: service.title }],
+      // Coperta e opțională la servicii; fără ea rămâne imaginea generală.
+      images: service.coverImage ? [{ url: service.coverImage, alt: service.title }] : undefined,
+    },
+    // Fără asta, X/Twitter moștenește titlul și poza generale ale site-ului,
+    // iar un link partajat arăta altceva decât pagina.
+    twitter: {
+      card: 'summary_large_image',
+      title: service.title,
+      description: truncate(service.shortDescription, 160),
+      images: service.coverImage ? [service.coverImage] : undefined,
     },
   }
 }

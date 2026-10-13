@@ -94,6 +94,7 @@ export default function ContactPopup() {
               <li key={channel.key}>
                 <ChannelLink
                   channel={channel}
+                  source="fereastra"
                   onClick={close}
                   className={`flex min-h-14 w-full items-center justify-center gap-2.5 rounded-full px-6 text-[0.95rem] font-medium text-ink transition-colors duration-200 ease-out ${channel.tone}`}
                 >

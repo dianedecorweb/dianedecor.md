@@ -41,6 +41,8 @@ model Project {
   shortDescription String
   description      String
   coverImage       String
+  // Sala goală, înainte de decor. Cu ea, pagina proiectului arată comparația.
+  beforeImage      String?
   images           String[]
   tags             String[]
   featured         Boolean   @default(false)
@@ -98,5 +100,50 @@ model ContactMessage {
   // butoanele de acolo când starea se schimbă din panou, nu doar invers.
   telegramMessageId Int?
 
+  // De unde a pornit cererea: „fereastra" (fereastra de la intrare), „buton"
+  // (butonul flotant), „chirie" (catalogul de chirie) sau „site".
+  source String?
+
+  // Doar pentru studio, nu se văd nicăieri pe site.
+  note       String?
+  followUpAt DateTime?
+
   @@index([status, createdAt])
+}
+
+/// Câte apăsări pe telefon și pe Instagram, pe zi și pe locul de unde au venit.
+/// Un rând pe combinație, incrementat; nu ține nimic despre vizitator.
+model ChannelClick {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  day     String
+  channel String
+  source  String
+  count   Int    @default(0)
+
+  @@unique([day, channel, source])
+}
+
+/// O zi în care studioul e deja rezervat. Ora e mereu miezul nopții UTC.
+model BookedDate {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime @unique
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+/// Un obiect din catalogul de chirie: arcadă, suport, vază.
+model RentalItem {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String   @unique
+  description String
+  image       String
+  priceFrom   Int?
+  priceUnit   String   @default("zi")
+  published   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published, order])
 }

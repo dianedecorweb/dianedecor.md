@@ -67,6 +67,7 @@ export default function ContactLauncher() {
                 <li key={channel.key}>
                   <ChannelLink
                     channel={channel}
+                    source="buton"
                     onClick={close}
                     className={`flex min-h-14 w-full items-center gap-3 rounded-md px-4 py-3 text-ink transition-colors duration-200 ease-out ${channel.tone}`}
                   >

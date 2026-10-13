@@ -17,6 +17,9 @@ import { eventTypeOptions } from '@/lib/site-config'
 const PHONE_PATTERN = /^(0\d{8}|\+?373\d{8}|\+\d{8,15}|00\d{8,15})$/
 const normalizePhone = (value) => value.replace(/[\s\-.()]/g, '')
 
+/** De unde poate porni o cerere. Orice altă valoare devine „site". */
+export const REQUEST_SOURCES = ['fereastra', 'buton', 'chirie', 'site']
+
 /** Treats an untouched input ('' or null) as "not provided". */
 function optional(schema) {
   return z.preprocess(
@@ -80,6 +83,11 @@ export const contactSchema = z
         .int('Introdu un număr întreg.')
         .min(1, 'Numărul de invitați trebuie să fie cel puțin 1.')
         .max(2000, 'Numărul de invitați poate fi cel mult 2000.')
+    ),
+
+    source: z.preprocess(
+      (value) => (REQUEST_SOURCES.includes(value) ? value : 'site'),
+      z.enum(REQUEST_SOURCES)
     ),
 
     message: z

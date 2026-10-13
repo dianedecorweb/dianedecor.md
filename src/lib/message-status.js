@@ -29,3 +29,11 @@ export const STATUS_HINTS = {
 export function isMessageStatus(value) {
   return MESSAGE_STATUSES.includes(value)
 }
+
+/** De unde a pornit cererea, pe scurt, pentru eticheta din panou. */
+export const SOURCE_LABELS = {
+  fereastra: 'din fereastra de la intrare',
+  buton: 'din butonul flotant',
+  chirie: 'din catalogul de chirie',
+  site: 'din site',
+}

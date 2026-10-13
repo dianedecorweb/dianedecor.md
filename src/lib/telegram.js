@@ -107,14 +107,38 @@ export async function sendNotification(message, messageId) {
 export async function syncStatus(telegramMessageId, message, status) {
   if (!isConfigured() || !telegramMessageId) return
 
-  await call('editMessageText', {
-    chat_id: process.env.TELEGRAM_CHAT_ID,
-    message_id: telegramMessageId,
-    text: formatMessage(message, status),
-    parse_mode: 'HTML',
-    disable_web_page_preview: true,
-    reply_markup: statusKeyboard(message.id, status),
-  })
+  try {
+    await call('editMessageText', {
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      message_id: telegramMessageId,
+      text: formatMessage(message, status),
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: statusKeyboard(message.id, status),
+    })
+  } catch (error) {
+    // Un clic pe butonul deja bifat cere exact textul care e acolo; Telegram
+    // refuză, dar nu e nimic de reparat.
+    if (!String(error.message).includes('message is not modified')) throw error
+  }
+}
+
+/**
+ * Scoate notificarea din grup, când cererea e ștearsă din panou.
+ * Telegram lasă un bot să-și șteargă mesajele doar 48 de ore; după aceea
+ * notificarea rămâne, iar cererea dispare doar din panou.
+ */
+export async function deleteNotification(telegramMessageId) {
+  if (!isConfigured() || !telegramMessageId) return false
+  try {
+    await call('deleteMessage', {
+      chat_id: process.env.TELEGRAM_CHAT_ID,
+      message_id: telegramMessageId,
+    })
+    return true
+  } catch {
+    return false
+  }
 }
 
 /** Închide rotița de pe butonul apăsat; fără asta rămâne învârtindu-se. */

@@ -98,6 +98,7 @@ export async function POST(request) {
     eventDate: result.data.eventDate ? new Date(result.data.eventDate) : null,
     location: result.data.location ? sanitizeText(result.data.location, 120) : null,
     guestCount: result.data.guestCount ?? null,
+    source: result.data.source,
     message: rapidSubmit
       ? `${RAPID_SUBMIT_MARKER}${sanitizeText(result.data.message, 1000)}`
       : sanitizeText(result.data.message, 1000),

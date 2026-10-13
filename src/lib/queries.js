@@ -1,6 +1,5 @@
 import { isDatabaseConfigured, prisma } from '@/lib/prisma'
 import * as fallback from '@/lib/fallback-content'
-import { listFallbackMessages } from '@/lib/message-store'
 
 /**
  * Every read the site performs lives here; pages never touch `prisma` directly.
@@ -269,20 +268,4 @@ export async function getFeaturedTestimonials(limit = 12) {
  * Admin inbox. Reads MongoDB and merges in anything the fail-safe store picked
  * up while the database was unavailable, newest first.
  */
-export async function getMessages(status) {
-  const stored = listFallbackMessages(status)
-
-  const fromDatabase = await read(
-    'getMessages',
-    () =>
-      prisma.contactMessage.findMany({
-        where: status ? { status } : undefined,
-        orderBy: { createdAt: 'desc' },
-        take: 200,
-      }),
-    () => []
-  )
-
-  return [...fromDatabase, ...stored].sort((a, b) => b.createdAt - a.createdAt)
-}
 

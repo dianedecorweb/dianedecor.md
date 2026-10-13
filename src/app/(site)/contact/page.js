@@ -25,7 +25,7 @@ export const metadata = {
  * on load. Every query this page runs is cached, so the render is near-instant.
  */
 export default async function ContactPage({ searchParams }) {
-  const [{ tip }, services] = await Promise.all([searchParams, getServices()])
+  const [{ tip, din }, services] = await Promise.all([searchParams, getServices()])
 
   const preselected = services.find((service) => service.slug === tip)
   const initialEventType =
@@ -46,7 +46,7 @@ export default async function ContactPage({ searchParams }) {
         <div className="grid gap-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
           <div>
             <h2 className="sr-only">Formular de contact</h2>
-            <ContactForm initialEventType={initialEventType} />
+            <ContactForm initialEventType={initialEventType} source={din} />
           </div>
 
           <div>

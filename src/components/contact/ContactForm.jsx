@@ -33,7 +33,7 @@ async function validate(values) {
   return result.success ? null : toFieldErrors(result.error)
 }
 
-export default function ContactForm({ initialEventType = '' }) {
+export default function ContactForm({ initialEventType = '', source = 'site' }) {
   const [values, setValues] = useState({ ...EMPTY_FORM, eventType: initialEventType })
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle')
@@ -74,7 +74,7 @@ export default function ContactForm({ initialEventType = '' }) {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, renderedAt: renderedAtRef.current }),
+        body: JSON.stringify({ ...values, source, renderedAt: renderedAtRef.current }),
       })
 
       const body = await response.json()

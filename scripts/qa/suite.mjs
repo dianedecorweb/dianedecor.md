@@ -263,7 +263,10 @@ setGroup('Autentificare admin')
 async function login(email, password) {
   const response = await fetch(`${BASE}/api/admin/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // IP propriu pentru fiecare încercare, ca la formular: altfel cele 7
+    // logări de aici consumă limita serverului (8 / 10 min) și parcursurile
+    // din browser, rulate după, găsesc login-ul blocat.
+    headers: { 'Content-Type': 'application/json', 'x-forwarded-for': freshIp() },
     body: JSON.stringify({ email, password }),
   })
   return { status: response.status, cookie: response.headers.get('set-cookie') }

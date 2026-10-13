@@ -142,3 +142,87 @@ export async function getAdminTestimonial(id) {
     },
   })
 }
+
+/** Ziua de azi în Chișinău, ca dată „doar zi" (miezul nopții UTC). */
+export function chisinauToday() {
+  const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Chisinau' }).format(new Date())
+  return new Date(`${day}T00:00:00.000Z`)
+}
+
+/**
+ * Mesajele pentru panou: căutare și filtre făcute în bază, nu în pagină.
+ *
+ * Lista vizibilă e mărginită, dar cifrele din antet vin din numărători
+ * separate, deci rămân corecte oricâte mesaje s-ar aduna. `due` aduce cererile
+ * cu data de revenire azi sau trecută, încă nearhivate.
+ */
+export async function getAdminInbox({ status = null, q = '', due = false } = {}) {
+  const { listFallbackMessages } = await import('@/lib/message-store')
+  const term = q.trim()
+  const today = chisinauToday()
+
+  const matches = (message) =>
+    !term ||
+    [message.name, message.phone, message.email, message.message, message.location]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(term.toLowerCase()))
+  const isDue = (message) =>
+    message.followUpAt && new Date(message.followUpAt) <= today && message.status !== 'ARCHIVED'
+
+  const fallbackAll = listFallbackMessages().filter(matches)
+  const fallbackShown = fallbackAll.filter(
+    (message) => (!status || message.status === status) && (!due || isDue(message))
+  )
+
+  const emptyCounts = { all: 0, NEW: 0, READ: 0, CONTACTED: 0, ARCHIVED: 0, due: 0 }
+
+  if (!canEditContent()) {
+    const counts = { ...emptyCounts }
+    for (const message of fallbackAll) {
+      counts.all += 1
+      counts[message.status] += 1
+      if (isDue(message)) counts.due += 1
+    }
+    return { messages: fallbackShown, counts, truncated: false }
+  }
+
+  const insensitive = (value) => ({ contains: value, mode: 'insensitive' })
+  const search = term
+    ? {
+        OR: [
+          { name: insensitive(term) },
+          { phone: { contains: term } },
+          { phone: { contains: term.replace(/\s/g, '') } },
+          { email: insensitive(term) },
+          { message: insensitive(term) },
+          { location: insensitive(term) },
+        ],
+      }
+    : {}
+  const dueWhere = { followUpAt: { lte: today }, status: { not: 'ARCHIVED' } }
+  const where = { ...search, ...(status ? { status } : {}), ...(due ? dueWhere : {}) }
+  const LIMIT = 300
+
+  const [messages, grouped, dueCount, shownTotal] = await Promise.all([
+    prisma.contactMessage.findMany({ where, orderBy: { createdAt: 'desc' }, take: LIMIT }),
+    prisma.contactMessage.groupBy({ by: ['status'], where: search, _count: { _all: true } }),
+    prisma.contactMessage.count({ where: { ...search, ...dueWhere } }),
+    prisma.contactMessage.count({ where }),
+  ])
+
+  const counts = { ...emptyCounts, due: dueCount }
+  for (const row of grouped) {
+    counts[row.status] = row._count._all
+    counts.all += row._count._all
+  }
+  for (const message of fallbackAll) {
+    counts.all += 1
+    counts[message.status] += 1
+  }
+
+  return {
+    messages: [...messages, ...fallbackShown].sort((a, b) => b.createdAt - a.createdAt),
+    counts,
+    truncated: shownTotal > LIMIT,
+  }
+}

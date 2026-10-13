@@ -37,6 +37,14 @@ export async function generateMetadata({ params }) {
       url: `/portofoliu/${project.slug}`,
       images: [{ url: project.coverImage, alt: project.title }],
     },
+    // Fără asta, X/Twitter moștenește titlul și poza generale ale site-ului,
+    // iar un link partajat arăta altceva decât pagina.
+    twitter: {
+      card: 'summary_large_image',
+      title: project.title,
+      description: truncate(project.shortDescription, 160),
+      images: [project.coverImage],
+    },
   }
 }
 

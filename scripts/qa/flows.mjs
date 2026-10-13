@@ -220,7 +220,7 @@ const order = await visitor.evaluate(
 )
 report.check(
   'ordinea: telefon, Instagram, ofertă',
-  order === 'tel:+37369216064 https://ig.me/m/dianedecor.md /contact',
+  order === 'tel:+37369216064 https://ig.me/m/dianedecor.md /contact?din=fereastra',
   order
 )
 
