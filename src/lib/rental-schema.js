@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { ruText } from '@/lib/ru-fields'
+
 /** Shared by `RentalForm` and the admin routes: same rules on both sides. */
 
 const IMAGE_PATTERN = /^(\/images\/[\w\-./]+\.(jpe?g|png|webp|avif)|https:\/\/[^\s]+)$/i
@@ -40,6 +42,9 @@ export const rentalSchema = z.object({
   ),
 
   priceUnit: z.enum(Object.keys(PRICE_UNITS), { error: 'Alege pentru ce e prețul.' }),
+
+  nameRu: ruText(80),
+  descriptionRu: ruText(300),
 
   published: z.boolean(),
 

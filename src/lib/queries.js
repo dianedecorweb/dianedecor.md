@@ -9,11 +9,11 @@ import * as fallback from '@/lib/fallback-content'
  * That keeps the site fully renderable before the Atlas connection string
  * exists, and keeps a database outage from taking the public pages down.
  */
-async function read(label, query, fallbackValue) {
+async function read(label, query, fallbackValue, lang = 'ro') {
   if (!isDatabaseConfigured()) return fallbackValue()
 
   try {
-    return await query()
+    return localize(await query(), lang)
   } catch (error) {
     // Mesajul spunea că servește conținutul din pachet, dar arunca eroarea mai
     // departe — deci rezerva nu intra niciodată în funcțiune și o pană a bazei
@@ -23,31 +23,54 @@ async function read(label, query, fallbackValue) {
   }
 }
 
+/**
+ * Pe /ru, fiecare câmp `x` primește valoarea lui `xRu` când traducerea există;
+ * altfel rămâne româna. Câmpurile `xRu` nu ies din funcție în nicio limbă, ca
+ * să nu ajungă degeaba în paginile trimise browserului.
+ */
+function localize(value, lang) {
+  if (Array.isArray(value)) return value.map((item) => localize(item, lang))
+  if (!value || typeof value !== 'object' || value instanceof Date) return value
+
+  const out = {}
+  for (const [key, field] of Object.entries(value)) {
+    if (key.endsWith('Ru')) continue
+    const ru = value[`${key}Ru`]
+    const translated = lang === 'ru' && (Array.isArray(ru) ? ru.length > 0 : Boolean(ru?.trim()))
+    out[key] = localize(translated ? ru : field, lang)
+  }
+  return out
+}
+
 const projectCardSelect = {
   slug: true,
   title: true,
+  titleRu: true,
   clientNames: true,
   location: true,
+  locationRu: true,
   eventDate: true,
   coverImage: true,
   shortDescription: true,
-  category: { select: { name: true, slug: true } },
+  shortDescriptionRu: true,
+  category: { select: { name: true, nameRu: true, slug: true } },
 }
 
-export async function getCategories() {
+export async function getCategories(lang) {
   return read(
     'getCategories',
     () =>
       prisma.category.findMany({
         where: { published: true },
         orderBy: { order: 'asc' },
-        select: { name: true, slug: true, description: true },
+        select: { name: true, nameRu: true, slug: true, description: true, descriptionRu: true },
       }),
-    () => fallback.categories
+    () => fallback.categories,
+    lang
   )
 }
 
-export async function getFeaturedProjects(limit = 4) {
+export async function getFeaturedProjects(limit = 4, lang) {
   return read(
     'getFeaturedProjects',
     () =>
@@ -57,11 +80,12 @@ export async function getFeaturedProjects(limit = 4) {
         take: limit,
         select: projectCardSelect,
       }),
-    () => fallback.featuredProjects.slice(0, limit)
+    () => fallback.featuredProjects.slice(0, limit),
+    lang
   )
 }
 
-export async function getProjectsByCategory(categorySlug) {
+export async function getProjectsByCategory(categorySlug, lang) {
   return read(
     'getProjectsByCategory',
     () =>
@@ -83,11 +107,12 @@ export async function getProjectsByCategory(categorySlug) {
               project.category.slug === categorySlug && publishedSlugs.includes(project.category.slug)
           )
         : fallback.projects.filter((project) => publishedSlugs.includes(project.category.slug))
-    }
+    },
+    lang
   )
 }
 
-export async function getRelatedProjects(categorySlug, excludeSlug, limit = 3) {
+export async function getRelatedProjects(categorySlug, excludeSlug, limit = 3, lang) {
   return read(
     'getRelatedProjects',
     () =>
@@ -113,11 +138,12 @@ export async function getRelatedProjects(categorySlug, excludeSlug, limit = 3) {
             project.slug !== excludeSlug
         )
         .slice(0, limit)
-    }
+    },
+    lang
   )
 }
 
-export async function getProjectBySlug(slug) {
+export async function getProjectBySlug(slug, lang) {
   return read(
     'getProjectBySlug',
     () =>
@@ -126,6 +152,7 @@ export async function getProjectBySlug(slug) {
         select: {
           ...projectCardSelect,
           description: true,
+          descriptionRu: true,
           images: true,
           beforeImage: true,
         },
@@ -136,7 +163,8 @@ export async function getProjectBySlug(slug) {
         .map((cat) => cat.slug)
       const project = fallback.projects.find((project) => project.slug === slug)
       return project && publishedSlugs.includes(project.category.slug) ? project : null
-    }
+    },
+    lang
   )
 }
 
@@ -161,14 +189,14 @@ export async function getProjectSlugs() {
 }
 
 /** Previous and next project inside the same category, for detail-page paging. */
-export async function getProjectNeighbours(categorySlug, currentSlug) {
+export async function getProjectNeighbours(categorySlug, currentSlug, lang) {
   const siblings = await read(
     'getProjectNeighbours',
     () =>
       prisma.project.findMany({
         where: { published: true, category: { is: { slug: categorySlug, published: true } } },
         orderBy: { order: 'asc' },
-        select: { slug: true, title: true },
+        select: { slug: true, title: true, titleRu: true },
       }),
     () => {
       const publishedSlugs = fallback.categories
@@ -180,7 +208,8 @@ export async function getProjectNeighbours(categorySlug, currentSlug) {
             project.category.slug === categorySlug && publishedSlugs.includes(project.category.slug)
         )
         .map(({ slug, title }) => ({ slug, title }))
-    }
+    },
+    lang
   )
 
   const index = siblings.findIndex((project) => project.slug === currentSlug)
@@ -192,7 +221,7 @@ export async function getProjectNeighbours(categorySlug, currentSlug) {
   }
 }
 
-export async function getServices() {
+export async function getServices(lang) {
   return read(
     'getServices',
     () =>
@@ -202,18 +231,22 @@ export async function getServices() {
         select: {
           slug: true,
           title: true,
+          titleRu: true,
           shortDescription: true,
+          shortDescriptionRu: true,
           icon: true,
           features: true,
+          featuresRu: true,
           coverImage: true,
           priceFrom: true,
         },
       }),
-    () => fallback.services
+    () => fallback.services,
+    lang
   )
 }
 
-export async function getServiceBySlug(slug) {
+export async function getServiceBySlug(slug, lang) {
   return read(
     'getServiceBySlug',
     () =>
@@ -222,15 +255,20 @@ export async function getServiceBySlug(slug) {
         select: {
           slug: true,
           title: true,
+          titleRu: true,
           shortDescription: true,
+          shortDescriptionRu: true,
           description: true,
+          descriptionRu: true,
           icon: true,
           features: true,
+          featuresRu: true,
           coverImage: true,
           priceFrom: true,
         },
       }),
-    () => fallback.services.find((service) => service.slug === slug) ?? null
+    () => fallback.services.find((service) => service.slug === slug) ?? null,
+    lang
   )
 }
 
@@ -251,7 +289,7 @@ export async function getServiceSlugs() {
  * Reviews for the home page. Only `published` decides: the admin exposes a
  * single "shown on the site" switch, so `featured` no longer filters anything.
  */
-export async function getFeaturedTestimonials(limit = 12) {
+export async function getFeaturedTestimonials(limit = 12, lang) {
   return read(
     'getFeaturedTestimonials',
     () =>
@@ -259,30 +297,35 @@ export async function getFeaturedTestimonials(limit = 12) {
         where: { published: true },
         orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
         take: limit,
-        select: { id: true, authorName: true, eventType: true, content: true, rating: true },
+        select: {
+          id: true,
+          authorName: true,
+          eventType: true,
+          eventTypeRu: true,
+          content: true,
+          contentRu: true,
+          rating: true,
+        },
       }),
-    () => fallback.testimonials.slice(0, limit)
+    () => fallback.testimonials.slice(0, limit),
+    lang
   )
 }
-
-/**
- * Admin inbox. Reads MongoDB and merges in anything the fail-safe store picked
- * up while the database was unavailable, newest first.
- */
-
 
 const rentalCardSelect = {
   id: true,
   slug: true,
   name: true,
+  nameRu: true,
   description: true,
+  descriptionRu: true,
   image: true,
   priceFrom: true,
   priceUnit: true,
 }
 
 /** The public rental catalogue. Empty when the studio has not added anything yet. */
-export async function getRentalItems() {
+export async function getRentalItems(lang) {
   return read(
     'getRentalItems',
     () =>
@@ -291,12 +334,13 @@ export async function getRentalItems() {
         orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
         select: rentalCardSelect,
       }),
-    () => []
+    () => [],
+    lang
   )
 }
 
 /** The items a visitor picked, in the order they were picked, published only. */
-export async function getRentalItemsBySlugs(slugs) {
+export async function getRentalItemsBySlugs(slugs, lang) {
   const wanted = [...new Set(slugs)].slice(0, 40)
   if (wanted.length === 0) return []
   const items = await read(
@@ -306,13 +350,14 @@ export async function getRentalItemsBySlugs(slugs) {
         where: { slug: { in: wanted }, published: true },
         select: rentalCardSelect,
       }),
-    () => []
+    () => [],
+    lang
   )
   return wanted.map((slug) => items.find((item) => item.slug === slug)).filter(Boolean)
 }
 
 /** One project with a "before" photo for the home page, featured ones first. */
-export async function getBeforeAfterShowcase() {
+export async function getBeforeAfterShowcase(lang) {
   return read(
     'getBeforeAfterShowcase',
     () =>
@@ -323,8 +368,9 @@ export async function getBeforeAfterShowcase() {
           category: { is: { published: true } },
         },
         orderBy: [{ featured: 'desc' }, { order: 'asc' }],
-        select: { slug: true, title: true, coverImage: true, beforeImage: true },
+        select: { slug: true, title: true, titleRu: true, coverImage: true, beforeImage: true },
       }),
-    () => null
+    () => null,
+    lang
   )
 }

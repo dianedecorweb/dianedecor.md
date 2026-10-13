@@ -38,7 +38,7 @@ export default async function ContactPage({ params, searchParams }) {
   // Din catalogul de chirie: lista aleasă vine deja scrisă în mesaj. Numele
   // se citesc din bază după adresă, ca în mesaj să nu ajungă text din URL.
   if (din === 'chirie' && typeof obiecte === 'string' && obiecte) {
-    const items = await getRentalItemsBySlugs(obiecte.split(','))
+    const items = await getRentalItemsBySlugs(obiecte.split(','), t.lang)
     if (items.length > 0) {
       initialEventType ||= serviceEventTypes['chirie-decor']
       initialMessage = `${t.contact.rentalIntro}\n${items.map((item) => `• ${item.name}`).join('\n')}\n\n`

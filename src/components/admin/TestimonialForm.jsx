@@ -6,6 +6,7 @@ import { Loader2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
 import DatabaseNotice from '@/components/admin/DatabaseNotice'
+import RussianFields from '@/components/admin/RussianFields'
 import Input, { FieldError, FieldHint, FieldLabel } from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
 import { testimonialMessages } from '@/lib/testimonial-schema'
@@ -38,6 +39,8 @@ export default function TestimonialForm({ testimonial, readOnly }) {
       authorName: values.authorName,
       eventType: values.eventType,
       content: values.content,
+      eventTypeRu: values.eventTypeRu ?? '',
+      contentRu: values.contentRu ?? '',
       published: values.published,
       order: Number(values.order) || 0,
     }
@@ -124,6 +127,15 @@ export default function TestimonialForm({ testimonial, readOnly }) {
             </span>
           </div>
         </div>
+
+        <RussianFields
+          field={field}
+          errors={errors}
+          fields={[
+            { name: 'eventTypeRu', label: 'Evenimentul' },
+            { name: 'contentRu', label: 'Recenzia', rows: 6 },
+          ]}
+        />
 
         <div>
           <FieldLabel htmlFor="order" optional>

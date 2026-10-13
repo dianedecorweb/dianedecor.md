@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
 
 export default async function ServicesPage({ params }) {
   const t = getDictionary((await params).lang)
-  const services = await getServices()
+  const services = await getServices(t.lang)
 
   return (
     <>

@@ -27,7 +27,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params
-  const service = await getServiceBySlug(slug)
+  const service = await getServiceBySlug(slug, lang)
 
   if (!service) return { title: getDictionary(lang).services.unavailable }
 
@@ -58,13 +58,13 @@ export async function generateMetadata({ params }) {
 export default async function ServicePage({ params }) {
   const { lang, slug } = await params
   const t = getDictionary(lang)
-  const service = await getServiceBySlug(slug)
+  const service = await getServiceBySlug(slug, lang)
 
   if (!service) notFound()
 
   const relatedCategorySlug = serviceCategoryMap[service.slug]
   const relatedProjects = relatedCategorySlug
-    ? await getRelatedProjects(relatedCategorySlug, null, 3)
+    ? await getRelatedProjects(relatedCategorySlug, null, 3, lang)
     : []
 
   // Linkul spre catalog apare doar când catalogul are ce arăta.

@@ -20,6 +20,10 @@ model Category {
   slug        String    @unique
   description String?
   coverImage  String?
+
+  // Variantele rusești, pentru /ru. Goale: pe /ru apare textul românesc.
+  nameRu        String?
+  descriptionRu String?
   order       Int       @default(0)
   published   Boolean   @default(true)
   createdAt   DateTime  @default(now())
@@ -43,6 +47,11 @@ model Project {
   coverImage       String
   // Sala goală, înainte de decor. Cu ea, pagina proiectului arată comparația.
   beforeImage      String?
+
+  titleRu            String?
+  locationRu         String?
+  shortDescriptionRu String?
+  descriptionRu      String?
   images           String[]
   tags             String[]
   featured         Boolean   @default(false)
@@ -64,6 +73,11 @@ model Service {
   icon             String
   features         String[]
   coverImage       String?
+
+  titleRu            String?
+  shortDescriptionRu String?
+  descriptionRu      String?
+  featuresRu         String[]
   priceFrom        Int?
   order            Int      @default(0)
   published        Boolean  @default(true)
@@ -76,6 +90,9 @@ model Testimonial {
   authorName String
   eventType  String
   content    String
+
+  eventTypeRu String?
+  contentRu   String?
   rating     Int      @default(5)
   featured   Boolean  @default(false)
   published  Boolean  @default(true)
@@ -141,6 +158,9 @@ model RentalItem {
   slug        String   @unique
   description String
   image       String
+
+  nameRu        String?
+  descriptionRu String?
   priceFrom   Int?
   priceUnit   String   @default("zi")
   published   Boolean  @default(true)

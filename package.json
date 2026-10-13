@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node prisma/seed.js",
+    "seed:ru": "node prisma/seed-ru.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "qa": "node scripts/qa/suite.mjs && node scripts/qa/devices.mjs && node scripts/qa/flows.mjs && node scripts/qa/brand.mjs",

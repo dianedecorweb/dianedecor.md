@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { ruLines, ruText } from '@/lib/ru-fields'
+
 /**
  * One schema for editing a service, shared by `ServiceForm` and the admin route.
  *
@@ -59,6 +61,11 @@ export const serviceSchema = z.object({
     .string({ error: 'Alege o imagine de copertă.' })
     .trim()
     .regex(IMAGE_PATTERN, 'Folosește o cale locală (/images/...) sau un URL https.'),
+
+  titleRu: ruText(80),
+  shortDescriptionRu: ruText(300),
+  descriptionRu: ruText(4000),
+  featuresRu: ruLines,
 
   published: z.boolean(),
 

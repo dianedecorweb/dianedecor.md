@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { ruText } from '@/lib/ru-fields'
+
 /**
  * One schema for a portfolio project, imported by both `ProjectForm` and the
  * admin route handlers. The client uses it for inline feedback; the server
@@ -76,6 +78,11 @@ export const projectSchema = z.object({
     .array(imagePath)
     .min(1, 'Adaugă cel puțin o imagine în galerie.')
     .max(20, 'Galeria poate avea maximum 20 de imagini.'),
+
+  titleRu: ruText(120),
+  locationRu: ruText(120),
+  shortDescriptionRu: ruText(300),
+  descriptionRu: ruText(4000),
 
   featured: z.boolean(),
   published: z.boolean(),

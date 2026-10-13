@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
 
 export default async function RentalCatalogPage({ params }) {
   const t = getDictionary((await params).lang)
-  const items = await getRentalItems()
+  const items = await getRentalItems(t.lang)
 
   return (
     <Container className="pt-16 pb-24 md:pt-20 md:pb-32">

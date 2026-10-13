@@ -28,10 +28,10 @@ export async function generateMetadata({ params }) {
 export default async function HomePage({ params }) {
   const t = getDictionary((await params).lang)
   const [featuredProjects, services, testimonials, showcase] = await Promise.all([
-    getFeaturedProjects(4),
-    getServices(),
-    getFeaturedTestimonials(),
-    getBeforeAfterShowcase(),
+    getFeaturedProjects(4, t.lang),
+    getServices(t.lang),
+    getFeaturedTestimonials(12, t.lang),
+    getBeforeAfterShowcase(t.lang),
   ])
 
   return (

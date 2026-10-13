@@ -6,6 +6,7 @@ import { Loader2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
 import DatabaseNotice from '@/components/admin/DatabaseNotice'
+import RussianFields from '@/components/admin/RussianFields'
 import ImageListField from '@/components/admin/ImageListField'
 import ImageUploadButton from '@/components/admin/ImageUploadButton'
 import Input, { FieldError, FieldHint, FieldLabel } from '@/components/ui/Input'
@@ -295,6 +296,17 @@ export default function ProjectForm({ project, categories, readOnly }) {
             }
           />
         </div>
+
+        <RussianFields
+          field={field}
+          errors={errors}
+          fields={[
+            { name: 'titleRu', label: 'Titlu' },
+            { name: 'locationRu', label: 'Locația' },
+            { name: 'shortDescriptionRu', label: 'Descriere scurtă', rows: 2 },
+            { name: 'descriptionRu', label: 'Descriere completă', rows: 8 },
+          ]}
+        />
 
         <div className="flex flex-col gap-4 md:col-span-2">
           <label className="flex items-center gap-3 text-sm text-ink">

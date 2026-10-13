@@ -6,6 +6,7 @@ import { Loader2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
 import DatabaseNotice from '@/components/admin/DatabaseNotice'
+import RussianFields from '@/components/admin/RussianFields'
 import ImageUploadButton from '@/components/admin/ImageUploadButton'
 import Input, { FieldError, FieldHint, FieldLabel } from '@/components/ui/Input'
 import Textarea from '@/components/ui/Textarea'
@@ -19,6 +20,10 @@ export default function ServiceForm({ service, readOnly }) {
     shortDescription: service.shortDescription,
     description: service.description,
     features: service.features.join('\n'),
+    titleRu: service.titleRu ?? '',
+    shortDescriptionRu: service.shortDescriptionRu ?? '',
+    descriptionRu: service.descriptionRu ?? '',
+    featuresRu: (service.featuresRu ?? []).join('\n'),
     priceFrom: service.priceFrom ?? '',
     coverImage: service.coverImage ?? '',
     published: service.published,
@@ -144,6 +149,17 @@ export default function ServiceForm({ service, readOnly }) {
           <FieldHint id="features-hint">Câte un lucru pe rând, cel mult 12. Apar ca listă pe pagina serviciului.</FieldHint>
           <FieldError id="features-error">{errors.features}</FieldError>
         </div>
+
+        <RussianFields
+          field={field}
+          errors={errors}
+          fields={[
+            { name: 'titleRu', label: 'Titlu' },
+            { name: 'shortDescriptionRu', label: 'Descriere scurtă', rows: 2 },
+            { name: 'descriptionRu', label: 'Descriere completă', rows: 8 },
+            { name: 'featuresRu', label: 'Ce include', rows: 7, hint: 'Câte un lucru pe rând, în aceeași ordine ca în română.' },
+          ]}
+        />
 
         <div className="md:col-span-2">
           <FieldLabel htmlFor="coverImage">Imagine de copertă</FieldLabel>

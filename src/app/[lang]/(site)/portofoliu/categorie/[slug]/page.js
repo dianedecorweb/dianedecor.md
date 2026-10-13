@@ -29,7 +29,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params
   const t = getDictionary(lang)
-  const categories = await getCategories()
+  const categories = await getCategories(lang)
   const category = categories.find((entry) => entry.slug === slug)
 
   if (!category) return { title: t.portfolio.categoryUnavailable }
@@ -47,8 +47,8 @@ export default async function PortfolioCategoryPage({ params }) {
   const { lang, slug } = await params
   const t = getDictionary(lang)
   const [categories, projects] = await Promise.all([
-    getCategories(),
-    getProjectsByCategory(slug),
+    getCategories(lang),
+    getProjectsByCategory(slug, lang),
   ])
 
   const category = categories.find((entry) => entry.slug === slug)

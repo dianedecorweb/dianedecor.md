@@ -7,6 +7,7 @@ import { ImageOff, Loader2, TriangleAlert } from 'lucide-react'
 import { useState } from 'react'
 
 import ImageUploadButton from '@/components/admin/ImageUploadButton'
+import RussianFields from '@/components/admin/RussianFields'
 import Input, { FieldError, FieldHint, FieldLabel } from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
@@ -100,6 +101,15 @@ export default function RentalForm({ item }) {
           />
           <FieldError id="description-error">{errors.description}</FieldError>
         </div>
+
+        <RussianFields
+          field={field}
+          errors={errors}
+          fields={[
+            { name: 'nameRu', label: 'Numele obiectului' },
+            { name: 'descriptionRu', label: 'Descriere scurtă', rows: 3 },
+          ]}
+        />
 
         <div>
           <FieldLabel htmlFor="priceFrom" optional>

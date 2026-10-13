@@ -12,7 +12,7 @@ function ColumnTitle({ children }) {
 }
 
 export default async function Footer({ t }) {
-  const services = await getServices()
+  const services = await getServices(t.lang)
 
   return (
     <footer className="bg-ink text-ivory">

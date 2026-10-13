@@ -1,3 +1,4 @@
+import { LOCALES, localePath } from '@/i18n/config'
 import { getCategories, getProjectSlugs, getRentalItems, getServiceSlugs } from '@/lib/queries'
 import { getSiteUrl } from '@/lib/site-config'
 
@@ -24,34 +25,38 @@ export default async function sitemap() {
   ])
   const now = new Date()
 
-  return [
-    ...STATIC_ROUTES.map((route) => ({
-      url: `${siteUrl}${route.path}`,
-      lastModified: now,
-      changeFrequency: route.changeFrequency,
-      priority: route.priority,
-    })),
+  const routes = [
+    ...STATIC_ROUTES,
     // Catalogul de chirie intră în sitemap doar când are ce arăta.
-    ...(rentalItems.length > 0
-      ? [{ url: `${siteUrl}/chirie-decor`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 }]
-      : []),
+    ...(rentalItems.length > 0 ? [{ path: '/chirie-decor', priority: 0.7, changeFrequency: 'weekly' }] : []),
     ...categories.map((category) => ({
-      url: `${siteUrl}/portofoliu/categorie/${category.slug}`,
-      lastModified: now,
-      changeFrequency: 'weekly',
+      path: `/portofoliu/categorie/${category.slug}`,
       priority: 0.8,
+      changeFrequency: 'weekly',
     })),
     ...services.map((service) => ({
-      url: `${siteUrl}/servicii/${service.slug}`,
-      lastModified: service.updatedAt ?? now,
-      changeFrequency: 'monthly',
+      path: `/servicii/${service.slug}`,
+      lastModified: service.updatedAt,
       priority: 0.7,
+      changeFrequency: 'monthly',
     })),
     ...projects.map((project) => ({
-      url: `${siteUrl}/portofoliu/${project.slug}`,
-      lastModified: project.updatedAt ?? now,
-      changeFrequency: 'monthly',
+      path: `/portofoliu/${project.slug}`,
+      lastModified: project.updatedAt,
       priority: 0.7,
+      changeFrequency: 'monthly',
     })),
   ]
+
+  // Fiecare pagină o dată pe limbă, cu legătura spre varianta celeilalte limbi.
+  return routes.flatMap(({ path, lastModified, priority, changeFrequency }) => {
+    const languages = Object.fromEntries(LOCALES.map((lang) => [lang, `${siteUrl}${localePath(lang, path)}`]))
+    return LOCALES.map((lang) => ({
+      url: languages[lang],
+      lastModified: lastModified ?? now,
+      changeFrequency,
+      priority,
+      alternates: { languages },
+    }))
+  })
 }

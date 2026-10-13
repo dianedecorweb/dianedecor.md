@@ -400,6 +400,18 @@ for (const pathname of pages.filter((path) => !path.includes('.'))) {
   check('fiecare mesaj de validare are traducere rusă', missing.length === 0, missing.join(' | '))
 }
 
+{
+  // Un formular din panou care nu trimite câmpurile rusești nu are voie să le șteargă.
+  const { z } = await import('zod')
+  const { ruText, ruLines } = await import('../../src/lib/ru-fields.js')
+  const schema = z.object({ text: ruText(20), lines: ruLines })
+  const parse = (value) => schema.parse(value)
+  check('panou: câmp rusesc lipsă → neatins', parse({}).text === undefined && parse({}).lines === undefined)
+  check('panou: câmp rusesc golit → șters', parse({ text: '  ', lines: '' }).text === null && parse({ lines: '' }).lines.length === 0)
+  check('panou: text rusesc păstrat, fără spații', parse({ text: ' Свадьбы ' }).text === 'Свадьбы')
+  check('panou: rândurile rusești se despart pe linii', parse({ lines: 'а\n\nб\n' }).lines.join('|') === 'а|б')
+}
+
 setGroup('Antete de securitate')
 
 {

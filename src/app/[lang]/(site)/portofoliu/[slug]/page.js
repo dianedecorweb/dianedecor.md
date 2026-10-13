@@ -25,7 +25,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { lang, slug } = await params
-  const project = await getProjectBySlug(slug)
+  const project = await getProjectBySlug(slug, lang)
 
   if (!project) return { title: getDictionary(lang).project.unavailable }
 
@@ -55,11 +55,11 @@ export async function generateMetadata({ params }) {
 export default async function ProjectPage({ params }) {
   const { lang, slug } = await params
   const t = getDictionary(lang)
-  const project = await getProjectBySlug(slug)
+  const project = await getProjectBySlug(slug, lang)
 
   if (!project) notFound()
 
-  const neighbours = await getProjectNeighbours(project.category.slug, project.slug)
+  const neighbours = await getProjectNeighbours(project.category.slug, project.slug, lang)
   const eventDate = formatEventDate(project.eventDate, lang)
   const paragraphs = toParagraphs(project.description)
 

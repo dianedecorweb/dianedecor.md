@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { ruText } from '@/lib/ru-fields'
+
 /**
  * One schema for a review, imported by both `TestimonialForm` and the admin
  * route handlers: inline feedback on the client, the same rules re-run on the
@@ -26,6 +28,9 @@ export const testimonialSchema = z.object({
     .trim()
     .min(20, 'Recenzia trebuie să aibă cel puțin 20 de caractere.')
     .max(800, 'Recenzia poate avea maximum 800 de caractere.'),
+
+  eventTypeRu: ruText(80),
+  contentRu: ruText(800),
 
   published: z.boolean(),
 

@@ -30,7 +30,10 @@ export async function generateMetadata({ params }) {
  */
 export default async function PortfolioPage({ params }) {
   const t = getDictionary((await params).lang)
-  const [categories, projects] = await Promise.all([getCategories(), getProjectsByCategory(null)])
+  const [categories, projects] = await Promise.all([
+    getCategories(t.lang),
+    getProjectsByCategory(null, t.lang),
+  ])
 
   return (
     <>
