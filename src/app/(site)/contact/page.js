@@ -5,6 +5,7 @@ import ContactForm from '@/components/contact/ContactForm'
 import FaqAccordion from '@/components/contact/FaqAccordion'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/layout/SectionHeading'
+import { getRentalItemsBySlugs } from '@/lib/queries'
 import { serviceEventTypes, siteConfig } from '@/lib/site-config'
 
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
@@ -24,8 +25,19 @@ export const metadata = {
  * on load. Every query this page runs is cached, so the render is near-instant.
  */
 export default async function ContactPage({ searchParams }) {
-  const { tip, din } = await searchParams
-  const initialEventType = serviceEventTypes[tip] ?? ''
+  const { tip, din, obiecte } = await searchParams
+  let initialEventType = serviceEventTypes[tip] ?? ''
+  let initialMessage = ''
+
+  // Din catalogul de chirie: lista aleasă vine deja scrisă în mesaj. Numele
+  // se citesc din bază după adresă, ca în mesaj să nu ajungă text din URL.
+  if (din === 'chirie' && typeof obiecte === 'string' && obiecte) {
+    const items = await getRentalItemsBySlugs(obiecte.split(','))
+    if (items.length > 0) {
+      initialEventType ||= serviceEventTypes['chirie-decor']
+      initialMessage = `Aș vrea să închiriez:\n${items.map((item) => `• ${item.name}`).join('\n')}\n\n`
+    }
+  }
 
   return (
     <>
@@ -42,7 +54,7 @@ export default async function ContactPage({ searchParams }) {
         <div className="grid gap-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
           <div>
             <h2 className="sr-only">Formular de contact</h2>
-            <ContactForm initialEventType={initialEventType} source={din} />
+            <ContactForm initialEventType={initialEventType} initialMessage={initialMessage} source={din} />
           </div>
 
           <div>

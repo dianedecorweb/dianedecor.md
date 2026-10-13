@@ -342,3 +342,28 @@ export async function getUpcomingBookedDates() {
     select: { id: true, date: true, note: true },
   })
 }
+
+const RENTAL_FIELDS = {
+  id: true,
+  slug: true,
+  name: true,
+  description: true,
+  image: true,
+  priceFrom: true,
+  priceUnit: true,
+  published: true,
+  order: true,
+}
+
+export async function getAdminRentalItems() {
+  if (!canEditContent()) return []
+  return prisma.rentalItem.findMany({
+    orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+    select: RENTAL_FIELDS,
+  })
+}
+
+export async function getAdminRentalItem(id) {
+  if (!canEditContent()) return null
+  return prisma.rentalItem.findUnique({ where: { id }, select: RENTAL_FIELDS })
+}

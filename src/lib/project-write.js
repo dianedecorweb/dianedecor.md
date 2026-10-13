@@ -14,7 +14,6 @@ export function revalidatePortfolio() {
   revalidatePath('/(site)/portofoliu/[slug]', 'page')
   revalidatePath('/(site)/portofoliu/categorie/[slug]', 'page')
   revalidatePath('/(site)/servicii/[slug]', 'page')
-  revalidatePath('/sitemap.xml')
 }
 
 /** Maps validated form input onto the Prisma columns. */

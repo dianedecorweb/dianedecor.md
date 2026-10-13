@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
-import { Check } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowRight, Check } from 'lucide-react'
 
 import CtaBand from '@/components/home/CtaBand'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
@@ -10,7 +11,7 @@ import JsonLd, { breadcrumbSchema } from '@/components/seo/JsonLd'
 import Badge from '@/components/ui/Badge'
 import { formatPriceFrom, toParagraphs } from '@/lib/format'
 import Icon from '@/components/ui/Icon'
-import { getRelatedProjects, getServiceBySlug, getServiceSlugs } from '@/lib/queries'
+import { getRelatedProjects, getRentalItems, getServiceBySlug, getServiceSlugs } from '@/lib/queries'
 import { serviceCategoryMap } from '@/lib/site-config'
 import { truncate } from '@/lib/utils'
 
@@ -61,6 +62,10 @@ export default async function ServicePage({ params }) {
   const relatedProjects = relatedCategorySlug
     ? await getRelatedProjects(relatedCategorySlug, null, 3)
     : []
+
+  // Linkul spre catalog apare doar când catalogul are ce arăta.
+  const hasRentalCatalog =
+    service.slug === 'chirie-decor' && (await getRentalItems()).length > 0
 
   const priceFrom = formatPriceFrom(service.priceFrom)
   const paragraphs = toParagraphs(service.description)
@@ -118,6 +123,15 @@ export default async function ServicePage({ params }) {
                 </li>
               ))}
             </ul>
+            {hasRentalCatalog ? (
+              <Link
+                href="/chirie-decor"
+                className="mt-8 inline-flex h-12 items-center gap-2 rounded-[3px] bg-ink px-6 text-sm font-medium text-ivory transition-colors duration-200 ease-out hover:bg-accent-deep"
+              >
+                Vezi catalogul de chirie
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            ) : null}
           </div>
         </div>
       </Container>

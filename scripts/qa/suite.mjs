@@ -346,7 +346,7 @@ for (const [method, route] of [
 setGroup('Pagini publice')
 
 const pages = [
-  '/', '/servicii', '/portofoliu', '/despre', '/contact',
+  '/', '/servicii', '/portofoliu', '/despre', '/contact', '/chirie-decor',
   '/portofoliu/categorie/nunti', '/portofoliu/categorie/cumetrii',
   '/servicii/decor-nunta', '/portofoliu/nunta-ana-roman-chisinau',
   '/sitemap.xml', '/robots.txt', '/manifest.webmanifest',

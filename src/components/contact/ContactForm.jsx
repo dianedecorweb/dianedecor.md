@@ -55,8 +55,12 @@ function useAvailability(day) {
   return result.day === day ? result.booked : null
 }
 
-export default function ContactForm({ initialEventType = '', source = 'site' }) {
-  const [values, setValues] = useState({ ...EMPTY_FORM, eventType: initialEventType })
+export default function ContactForm({ initialEventType = '', initialMessage = '', source = 'site' }) {
+  const [values, setValues] = useState({
+    ...EMPTY_FORM,
+    eventType: initialEventType,
+    message: initialMessage,
+  })
   const booked = useAvailability(values.eventDate)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle')

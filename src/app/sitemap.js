@@ -1,8 +1,10 @@
-import { getCategories, getProjectSlugs, getServiceSlugs } from '@/lib/queries'
+import { getCategories, getProjectSlugs, getRentalItems, getServiceSlugs } from '@/lib/queries'
 import { getSiteUrl } from '@/lib/site-config'
 
-// ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
-export const revalidate = 300
+// Generat la fiecare cerere: lista e mereu exactă și nu depinde de faptul că
+// fiecare rută de scriere din panou își amintește să-l reîmprospăteze. Google
+// îl cere de câteva ori pe zi, deci o citire din bază de fiecare dată nu costă.
+export const dynamic = 'force-dynamic'
 
 const STATIC_ROUTES = [
   { path: '/', priority: 1, changeFrequency: 'monthly' },
@@ -14,10 +16,11 @@ const STATIC_ROUTES = [
 
 export default async function sitemap() {
   const siteUrl = getSiteUrl()
-  const [projects, services, categories] = await Promise.all([
+  const [projects, services, categories, rentalItems] = await Promise.all([
     getProjectSlugs(),
     getServiceSlugs(),
     getCategories(),
+    getRentalItems(),
   ])
   const now = new Date()
 
@@ -28,6 +31,10 @@ export default async function sitemap() {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),
+    // Catalogul de chirie intră în sitemap doar când are ce arăta.
+    ...(rentalItems.length > 0
+      ? [{ url: `${siteUrl}/chirie-decor`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 }]
+      : []),
     ...categories.map((category) => ({
       url: `${siteUrl}/portofoliu/categorie/${category.slug}`,
       lastModified: now,

@@ -269,3 +269,43 @@ export async function getFeaturedTestimonials(limit = 12) {
  * up while the database was unavailable, newest first.
  */
 
+
+const rentalCardSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  description: true,
+  image: true,
+  priceFrom: true,
+  priceUnit: true,
+}
+
+/** The public rental catalogue. Empty when the studio has not added anything yet. */
+export async function getRentalItems() {
+  return read(
+    'getRentalItems',
+    () =>
+      prisma.rentalItem.findMany({
+        where: { published: true },
+        orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+        select: rentalCardSelect,
+      }),
+    () => []
+  )
+}
+
+/** The items a visitor picked, in the order they were picked, published only. */
+export async function getRentalItemsBySlugs(slugs) {
+  const wanted = [...new Set(slugs)].slice(0, 40)
+  if (wanted.length === 0) return []
+  const items = await read(
+    'getRentalItemsBySlugs',
+    () =>
+      prisma.rentalItem.findMany({
+        where: { slug: { in: wanted }, published: true },
+        select: rentalCardSelect,
+      }),
+    () => []
+  )
+  return wanted.map((slug) => items.find((item) => item.slug === slug)).filter(Boolean)
+}

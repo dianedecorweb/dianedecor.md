@@ -42,7 +42,9 @@ export default function ContactLauncher() {
 
   const close = () => setIsOpen(false)
 
-  if (pathname.startsWith('/contact')) return null
+  // Pe /chirie-decor bara cu obiectele alese stă jos, pe toată lățimea, și are
+  // propriul buton de ofertă; butonul flotant i l-ar acoperi.
+  if (pathname.startsWith('/contact') || pathname.startsWith('/chirie-decor')) return null
 
   return (
     <div

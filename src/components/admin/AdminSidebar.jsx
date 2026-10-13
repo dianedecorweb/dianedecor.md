@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, CalendarDays, ExternalLink, Inbox, Images, Menu, MessageSquareQuote, Sparkles, X } from 'lucide-react'
+import { BarChart3, CalendarDays, ExternalLink, Inbox, Images, Menu, MessageSquareQuote, Package, Sparkles, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import Logo from '@/components/brand/Logo'
@@ -13,6 +13,7 @@ const sections = [
   { label: 'Portofoliu', href: '/admin/portofoliu', icon: Images },
   { label: 'Servicii', href: '/admin/servicii', icon: Sparkles },
   { label: 'Calendar', href: '/admin/calendar', icon: CalendarDays },
+  { label: 'Chirie decor', href: '/admin/chirie', icon: Package },
   { label: 'Recenzii', href: '/admin/recenzii', icon: MessageSquareQuote },
   { label: 'Statistici', href: '/admin/statistici', icon: BarChart3 },
 ]
