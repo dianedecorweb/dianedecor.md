@@ -339,23 +339,6 @@ export async function getRentalItems(lang) {
   )
 }
 
-/** The items a visitor picked, in the order they were picked, published only. */
-export async function getRentalItemsBySlugs(slugs, lang) {
-  const wanted = [...new Set(slugs)].slice(0, 40)
-  if (wanted.length === 0) return []
-  const items = await read(
-    'getRentalItemsBySlugs',
-    () =>
-      prisma.rentalItem.findMany({
-        where: { slug: { in: wanted }, published: true },
-        select: rentalCardSelect,
-      }),
-    () => [],
-    lang
-  )
-  return wanted.map((slug) => items.find((item) => item.slug === slug)).filter(Boolean)
-}
-
 /** One project with a "before" photo for the home page, featured ones first. */
 export async function getBeforeAfterShowcase(lang) {
   return read(

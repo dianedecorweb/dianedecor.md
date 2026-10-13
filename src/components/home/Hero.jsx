@@ -1,7 +1,18 @@
-import Image from 'next/image'
+import { getImageProps } from 'next/image'
 
 import Container from '@/components/layout/Container'
 import Button from '@/components/ui/Button'
+
+const heroImage = { alt: '', sizes: '100vw', quality: 75 }
+const {
+  props: { srcSet: desktopSrcSet },
+} = getImageProps({ ...heroImage, src: '/images/hero.jpg', width: 2400, height: 1350 })
+const { props: mobileImage } = getImageProps({
+  ...heroImage,
+  src: '/images/hero-portret.jpg',
+  width: 1200,
+  height: 2000,
+})
 
 export default function Hero({ t }) {
   return (
@@ -18,20 +29,15 @@ export default function Hero({ t }) {
         sursă — pragul nu e la 768 pentru că o tabletă ținută vertical pierde
         mai bine de jumătate din panoramă. `<picture>` alege unul singur, deci nu se descarcă amândouă.
       */}
+      {/* Prin optimizatorul de imagini: WebP la lățimea ecranului, nu JPEG-ul
+          întreg de 156 KB, care era imaginea care întârzia cel mai mult prima pagină. */}
       <picture>
-        <source
-          media="(min-width: 1024px)"
-          srcSet="/images/hero.jpg"
-          width={2400}
-          height={1350}
-        />
+        <source media="(min-width: 1024px)" srcSet={desktopSrcSet} sizes="100vw" />
         <img
-          src="/images/hero-portret.jpg"
+          {...mobileImage}
           alt=""
-          width={1200}
-          height={2000}
           fetchPriority="high"
-          decoding="async"
+          loading="eager"
           className="absolute inset-0 h-full w-full object-cover"
         />
       </picture>

@@ -87,6 +87,7 @@ const roClient = {
     consentLink: 'cum lucrăm',
     successTitle: 'Cererea a fost trimisă',
     another: 'Trimite altă cerere',
+    rentalIntro: 'Aș vrea să închiriez:',
     eventTypes: Object.fromEntries(eventTypeOptions.map((option) => [option, option])),
     messages: formMessages,
   },

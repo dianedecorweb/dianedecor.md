@@ -223,7 +223,6 @@ const ru = {
     email: 'Email',
     area: 'Зона работы',
     hours: 'Часы работы',
-    rentalIntro: 'Хочу арендовать:',
     faqTitle: 'Частые вопросы',
   },
 }

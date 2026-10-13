@@ -46,17 +46,17 @@ const FONTS = [
   { family: 'Cormorant Garamond', weight: 600, file: 'cormorant-600.woff2' },
   { family: 'Inter', weight: 400, file: 'inter-400.woff2' },
   { family: 'Inter', weight: 500, file: 'inter-500.woff2' },
-  { family: 'Cormorant Garamond', weight: 400, file: 'cormorant-400-cyr.woff2', glyphs: CYRILLIC },
-  { family: 'Cormorant Garamond', weight: 600, file: 'cormorant-600-cyr.woff2', glyphs: CYRILLIC },
-  { family: 'Inter', weight: 400, file: 'inter-400-cyr.woff2', glyphs: CYRILLIC },
-  { family: 'Inter', weight: 500, file: 'inter-500-cyr.woff2', glyphs: CYRILLIC },
+  { family: 'Cormorant Garamond', weight: 400, file: 'cormorant-400-cyr.woff2', glyphs: CYRILLIC, dir: 'public/fonts' },
+  { family: 'Cormorant Garamond', weight: 600, file: 'cormorant-600-cyr.woff2', glyphs: CYRILLIC, dir: 'public/fonts' },
+  { family: 'Inter', weight: 400, file: 'inter-400-cyr.woff2', glyphs: CYRILLIC, dir: 'public/fonts' },
+  { family: 'Inter', weight: 500, file: 'inter-500-cyr.woff2', glyphs: CYRILLIC, dir: 'public/fonts' },
 ]
 
 // A modern UA is required, otherwise Google serves TTF instead of WOFF2.
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36'
 
-async function fetchSubset({ family, weight, file, glyphs = GLYPHS }) {
+async function fetchSubset({ family, weight, file, glyphs = GLYPHS, dir = 'src/fonts' }) {
   const url =
     `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@${weight}` +
     `&text=${encodeURIComponent(glyphs)}&display=swap`
@@ -73,13 +73,14 @@ async function fetchSubset({ family, weight, file, glyphs = GLYPHS }) {
   if (!fontResponse.ok) throw new Error(`${family} ${weight}: font download failed`)
 
   const buffer = Buffer.from(await fontResponse.arrayBuffer())
-  await writeFile(path.join('src/fonts', file), buffer)
+  await writeFile(path.join(dir, file), buffer)
 
   return { file, kilobytes: Math.round(buffer.byteLength / 1024) }
 }
 
 async function main() {
   await mkdir('src/fonts', { recursive: true })
+  await mkdir('public/fonts', { recursive: true })
 
   const results = []
   for (const font of FONTS) {

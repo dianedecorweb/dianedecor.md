@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation'
+import { preload } from 'react-dom'
 
 import ScrollState from '@/components/layout/ScrollState'
-import { fontClasses, fontClassesRu } from '@/app/fonts'
+import { fontClasses } from '@/app/fonts'
 import { getDictionary } from '@/i18n'
 import { LocaleProvider } from '@/i18n/client'
 import { LOCALES, isLocale } from '@/i18n/config'
@@ -53,6 +54,9 @@ export async function generateMetadata({ params }) {
   }
 }
 
+/** Cele trei greutăți folosite pe orice pagină; Cormorant 600 se cere doar unde apare. */
+const CYRILLIC_FONTS = ['inter-400-cyr.woff2', 'inter-500-cyr.woff2', 'cormorant-400-cyr.woff2']
+
 export const viewport = {
   themeColor: '#FAF7F2',
   colorScheme: 'light',
@@ -62,8 +66,17 @@ export default async function LocaleRootLayout({ children, params }) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
 
+  // Chirilica vine din fișiere separate (vezi globals.css). Fără preîncărcare
+  // ajungeau ultimele, după fonturile latine, și textul rusesc se redesena
+  // târziu. Se cer doar pe paginile rusești; cele românești nu le descarcă.
+  if (lang === 'ru') {
+    for (const file of CYRILLIC_FONTS) {
+      preload(`/fonts/${file}`, { as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' })
+    }
+  }
+
   return (
-    <html lang={lang} className={lang === 'ru' ? fontClassesRu : fontClasses}>
+    <html lang={lang} className={fontClasses}>
       <body>
         <LocaleProvider lang={lang}>
           <ScrollState />

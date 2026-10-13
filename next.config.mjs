@@ -89,6 +89,12 @@ const nextConfig = {
 
   async headers() {
     return [
+      // Fonturile chirilice din public/ nu au hash în nume. Dacă se regenerează,
+      // browserele le reiau cel târziu după o lună.
+      {
+        source: '/fonts/:file*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }],
+      },
       {
         source: '/(.*)',
         headers: [

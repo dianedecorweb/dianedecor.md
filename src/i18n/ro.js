@@ -153,7 +153,6 @@ const ro = {
     email: 'Email',
     area: 'Zonă de lucru',
     hours: 'Program',
-    rentalIntro: 'Aș vrea să închiriez:',
     faqTitle: 'Întrebări frecvente',
   },
 }

@@ -1,12 +1,14 @@
 'use client'
 
 import { CalendarCheck, CalendarX, CircleCheck, Loader2, TriangleAlert } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import Input, { FieldError, FieldLabel } from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Textarea from '@/components/ui/Textarea'
 import { Link, useDictionary } from '@/i18n/client'
+import { serviceEventTypes } from '@/lib/site-config'
 
 const EMPTY_FORM = {
   name: '',
@@ -52,6 +54,30 @@ function useAvailability(day) {
 
   // Un răspuns pentru altă zi decât cea aleasă acum nu mai e valabil.
   return result.day === day ? result.booked : null
+}
+
+/**
+ * Formularul precompletat din adresă: `?tip=decor-nunta` alege tipul,
+ * `?din=` spune de unde vine vizitatorul, iar `?din=chirie&obiecte=a,b` scrie
+ * în mesaj obiectele alese din catalog. Citit în browser, ca pagina de contact
+ * să poată fi statică; numele obiectelor vin de pe server, nu din adresă.
+ */
+export function ContactFormFromUrl({ rentalNames }) {
+  const { form: t } = useDictionary()
+  const params = useSearchParams()
+  const tip = params.get('tip')
+  const din = params.get('din') ?? 'site'
+  let initialEventType = tip && Object.hasOwn(serviceEventTypes, tip) ? serviceEventTypes[tip] : ''
+  let initialMessage = ''
+
+  const picked = din === 'chirie' ? [...new Set((params.get('obiecte') ?? '').split(','))].slice(0, 40) : []
+  const names = picked.filter((slug) => Object.hasOwn(rentalNames, slug)).map((slug) => rentalNames[slug])
+  if (names.length > 0) {
+    initialEventType ||= serviceEventTypes['chirie-decor']
+    initialMessage = `${t.rentalIntro}\n${names.map((name) => `• ${name}`).join('\n')}\n\n`
+  }
+
+  return <ContactForm initialEventType={initialEventType} initialMessage={initialMessage} source={din} />
 }
 
 export default function ContactForm({ initialEventType = '', initialMessage = '', source = 'site' }) {

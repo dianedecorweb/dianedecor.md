@@ -1,14 +1,15 @@
 import { MessageCircle, Phone } from 'lucide-react'
+import { Suspense } from 'react'
 
 import ContactDetails from '@/components/contact/ContactDetails'
-import ContactForm from '@/components/contact/ContactForm'
+import ContactForm, { ContactFormFromUrl } from '@/components/contact/ContactForm'
 import FaqAccordion from '@/components/contact/FaqAccordion'
 import Container from '@/components/layout/Container'
 import SectionHeading from '@/components/layout/SectionHeading'
 import { getDictionary } from '@/i18n'
 import { alternatesFor } from '@/i18n/config'
-import { getRentalItemsBySlugs } from '@/lib/queries'
-import { serviceEventTypes, siteConfig } from '@/lib/site-config'
+import { getRentalItems } from '@/lib/queries'
+import { siteConfig } from '@/lib/site-config'
 
 // ISR: paginile publice se regenerează la 5 minute după prima cerere care le găsește expirate.
 export const revalidate = 300
@@ -24,26 +25,13 @@ export async function generateMetadata({ params }) {
 }
 
 /**
- * Reading `?tip=` here makes this the one public page that renders per request
- * rather than being prerendered. That is deliberate: doing it on the client
- * instead needs a Suspense boundary whose fallback swap shifts the whole page
- * on load. Every query this page runs is cached, so the render is near-instant.
+ * Statică, servită din cache ca restul site-ului: parametrii din adresă
+ * (`?tip=`, `?din=`, `?obiecte=`) îi citește formularul în browser. Până atunci
+ * se vede același formular, gol, deci pagina nu sare la încărcare.
  */
-export default async function ContactPage({ params, searchParams }) {
+export default async function ContactPage({ params }) {
   const t = getDictionary((await params).lang)
-  const { tip, din, obiecte } = await searchParams
-  let initialEventType = serviceEventTypes[tip] ?? ''
-  let initialMessage = ''
-
-  // Din catalogul de chirie: lista aleasă vine deja scrisă în mesaj. Numele
-  // se citesc din bază după adresă, ca în mesaj să nu ajungă text din URL.
-  if (din === 'chirie' && typeof obiecte === 'string' && obiecte) {
-    const items = await getRentalItemsBySlugs(obiecte.split(','), t.lang)
-    if (items.length > 0) {
-      initialEventType ||= serviceEventTypes['chirie-decor']
-      initialMessage = `${t.contact.rentalIntro}\n${items.map((item) => `• ${item.name}`).join('\n')}\n\n`
-    }
-  }
+  const rentalNames = Object.fromEntries((await getRentalItems(t.lang)).map((item) => [item.slug, item.name]))
 
   return (
     <>
@@ -60,7 +48,9 @@ export default async function ContactPage({ params, searchParams }) {
         <div className="grid gap-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-20">
           <div>
             <h2 className="sr-only">{t.contact.formHeading}</h2>
-            <ContactForm initialEventType={initialEventType} initialMessage={initialMessage} source={din} />
+            <Suspense fallback={<ContactForm />}>
+              <ContactFormFromUrl rentalNames={rentalNames} />
+            </Suspense>
           </div>
 
           <div>

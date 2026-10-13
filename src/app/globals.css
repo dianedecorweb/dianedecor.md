@@ -35,11 +35,42 @@
   --breakpoint-xs: 25rem;
 }
 
-/* Pe paginile rusești, fișierele cu chirilică stau primele: dau literele
-   rusești, iar cifrele și literele latine cad pe fonturile de mai sus. */
+/* Chirilica, din fișiere separate (public/fonts, generate de
+   scripts/fetch-fonts.js). `unicode-range` le limitează la literele rusești:
+   cifrele și literele latine vin în continuare din fonturile de mai sus, iar o
+   pagină fără text rusesc nu le descarcă. Pe /ru sunt preîncărcate din layout. */
+@font-face {
+  font-family: 'Cormorant Cyr';
+  src: url('/fonts/cormorant-400-cyr.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0400-04FF, U+00AB, U+00BB, U+2116;
+}
+@font-face {
+  font-family: 'Cormorant Cyr';
+  src: url('/fonts/cormorant-600-cyr.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+  unicode-range: U+0400-04FF, U+00AB, U+00BB, U+2116;
+}
+@font-face {
+  font-family: 'Inter Cyr';
+  src: url('/fonts/inter-400-cyr.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+0400-04FF, U+00AB, U+00BB, U+2116;
+}
+@font-face {
+  font-family: 'Inter Cyr';
+  src: url('/fonts/inter-500-cyr.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+0400-04FF, U+00AB, U+00BB, U+2116;
+}
+
 :root:lang(ru) {
-  --font-display: var(--font-cormorant-cyr), var(--font-cormorant), ui-serif, Georgia, serif;
-  --font-sans: var(--font-inter-cyr), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Cormorant Cyr', var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: 'Inter Cyr', var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
